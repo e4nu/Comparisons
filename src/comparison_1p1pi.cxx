@@ -82,9 +82,24 @@ int main(int argc, char* argv[]) {
       wrtr->write_event(evt); // write out events that we don't modify
       continue;
     }
-    // Here anlaysis
+
+    // Smear particles according to detector Resolution
+
+    // Apply cut on Q2
+
+    // Apply momentum and angle cuts
+
+    // Select 1p1pim (- or +) events
+
+    //std::vector<HepMC3::ConstGenParticlePtr>
+// GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
+//                     std::vector<int> PDGs = {});
+
     ++nprocessed;
     if( nevents > 0 && nprocessed > nevents ) break;
+
+    // Store histogram with same binning as data.
+
   }
 
   wrtr->close();

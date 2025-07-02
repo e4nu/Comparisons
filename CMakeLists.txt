@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(comparison_1p1pi src/comparison_1p1pi.cxx ${SOURCES})
+add_executable(comparison_1p1pi src/comparison_1p1pi.cxx)
 
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIRS})
