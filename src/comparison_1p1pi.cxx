@@ -2,6 +2,7 @@
 // HepMC3
 #include <TMath.h>
 #include "NuHepMC/HepMC3Features.hxx"
+//#include "NuHepMC/Reader.hxx"
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/WriterUtils.hxx"
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]) {
   TH1D * hist = new TH1D( "hist", "", 30, 0, 4 );
 
   auto rdr = HepMC3::deduce_reader(input_hepmc3_file);
+  // auto rdr = HepMC3::Reader(input_hepmc3_file);
   if (!rdr) {
     std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_file << std::endl;
     return 1;
@@ -170,13 +172,13 @@ int main(int argc, char* argv[]) {
     double ECal = GetECal( Pl, hadrons_reco, tgtpt->pid() );
     hist->Fill(El);
     
-    double evw = FATXAcc->process(evt);
+    //double evw = FATXAcc->process(evt);
     ++nprocessed;
   }
   hist->Draw("hist err");
 
   //  double fatx = FATXAcc->fatx(cm2ten38_PerNucleon);
-   double fatx = FATXAcc->fatx(); // in pb/Atom
+  // double fatx = FATXAcc->fatx(); // in pb/Atom
   //double sumw = FATXAcc->sumweights();
   //  size_t nevents = FATXAcc->events();
   c->SaveAs("/exp/genie/app/jtena/Comparisons/src/comparison_1p1pi.root");
