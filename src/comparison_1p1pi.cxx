@@ -25,20 +25,19 @@
 
 int main(int argc, char* argv[]) {
 
-  //  std::string input_hepmc3_file = "/exp/genie/app/jtena/Comparisons/src/1161/output_electron_C12_1161_351.root";
+  //std::string input_hepmc3_file = "/exp/genie/app/jtena/Comparisons/src/1161/output_electron_C12_1161_351.root";
   std::string input_hepmc3_file = "/pnfs/genie/persistent/users/jtenavid/e4nu_files/NuHEPMC/Carbon/4453MeV/master-routine_validation_01-eScattering/e_on_1000060120_4453MeV_0.hepmc3";
   std::string output_name = "myradevents";
   
   // process options
-  /*
-    if( argc > 1 ) { // configure rest of analysis
-    if( utils::ExistArg("input-hepmc3-file",argc,argv)) {
-    input_hepmc3_file = utils::GetArg("input-hepmc3-file",argc,argv);
-    } else { std::cout << " --input-hepmc3-file is not defined "; return 0 ;}
-    if( utils::ExistArg("output-file",argc,argv)) {
-    output_name = utils::GetArg("output-file",argc,argv);
+  if( argc > 1 ) { // configure rest of analysis
+    if( ExistArg("input-hepmc3-file",argc,argv)) {
+      input_hepmc3_file = GetArg("input-hepmc3-file",argc,argv);
+    } //else { std::cout << " --input-hepmc3-file is not defined "; return 0 ;}
+    if( ExistArg("output-file",argc,argv)) {
+      output_name = GetArg("output-file",argc,argv);
     }
-    }*/
+  }
 
   // Define Histogram 
   TCanvas * c = new TCanvas("c", "c", 200, 10, 700, 500);
