@@ -27,7 +27,9 @@ int main(int argc, char* argv[]) {
 
   //std::string input_hepmc3_file = "/exp/genie/app/jtena/Comparisons/src/1161/output_electron_C12_1161_351.root";
   std::string input_hepmc3_file = "/pnfs/genie/persistent/users/jtenavid/e4nu_files/NuHEPMC/Carbon/4453MeV/master-routine_validation_01-eScattering/e_on_1000060120_4453MeV_0.hepmc3";
-  std::string topology = "1p1pim", output_name = "myradevents", model_name = "MC_Name" ;
+///exp/genie/app/jtena/GENIE/Generator/src/scripts/production/python/Generator/e_on_1000060120_4453MeV_0.hepmc3";
+  //
+  std::string topology = "1p1pim", output_name = "comparison_1p1pi", model_name = "MC_Name" ;
   
   // process options
   if( argc > 1 ) { // configure rest of analysis
@@ -68,25 +70,13 @@ int main(int argc, char* argv[]) {
 
   // Define Histograms - binning will come from the data files when available.  
   TFile * outfile = new TFile((output_name+".root").c_str(), "RECREATE");
-  TH1D * xsec_El = new TH1D( (model_name+"_1Dxsec_El").c_str(), "",GetBinning("Efl", Beam_E, topology).size()-1, &GetBinning("Efl", Beam_E, topology)[0] );
-  TH1D * xsec_pl = new TH1D( (model_name+"_1Dxsec_pl").c_str(), "", GetBinning("pfl", Beam_E, topology).size()-1, &GetBinning("pfl", Beam_E, topology)[0] );
-  TH1D * xsec_thetal = new TH1D( (model_name+"_1Dxsec_thetal").c_str(), "", GetBinning("pfl_theta", Beam_E, topology).size()-1, &GetBinning("pfl_theta", Beam_E, topology)[0] );
-  TH1D * xsec_pp = new TH1D( (model_name+"_1Dxsec_pp").c_str(), "", GetBinning("proton_mom", Beam_E, topology).size()-1, &GetBinning("proton_mom", Beam_E, topology)[0] );
-  TH1D * xsec_thetap = new TH1D( (model_name+"_1Dxsec_thetap").c_str(), "", GetBinning("proton_theta", Beam_E, topology).size()-1, &GetBinning("proton_theta", Beam_E, topology)[0] );
-  TH1D * xsec_ppi, * xsec_thetapi ;
-  if( topology == "1p1pim") {
-    xsec_ppi = new TH1D( (model_name+"_1Dxsec_ppi").c_str(), "", GetBinning("pim_mom", Beam_E, topology).size()-1, &GetBinning("pim_mom", Beam_E, topology)[0] );
-    xsec_thetapi = new TH1D( (model_name+"_1Dxsec_thetapi").c_str(), "", GetBinning("pim_theta", Beam_E, topology).size()-1, &GetBinning("pim_theta", Beam_E, topology)[0] );
-  } else if( topology == "1p1pip") {
-    xsec_ppi = new TH1D( (model_name+"_1Dxsec_ppi").c_str(), "", GetBinning("pip_mom", Beam_E, topology).size()-1, &GetBinning("pip_mom", Beam_E, topology)[0] );
-    xsec_thetapi = new TH1D( (model_name+"_1Dxsec_thetapi").c_str(), "", GetBinning("pip_theta", Beam_E, topology).size()-1, &GetBinning("pip_theta", Beam_E, topology)[0] );
+  std::vector<string> observables = { "Efl", "pfl", "pfl_theta", "proton_mom", "proton_theta", "pim_mom", "pim_theta", "ECal", "RecoW", "RecoQ2", "HadDeltaPT", "HadAlphaT" };
+  std::map<string,TH1D*> histograms ; 
+  for ( unsigned int i = 0 ; i < observables.size() ; ++i ) { 
+    if( topology == "1p1pip" && observables[i] == "pim_mom" ) observables[i] == "pip_mom"; 
+    if( topology == "1p1pip" && observables[i] == "pim_theta" ) observables[i] == "pip_theta"; 
+    histograms[observables[i]] = new TH1D( (model_name+"_1Dxsec_"+observables[i]).c_str(), "",GetBinning(observables[i], Beam_E, topology).size()-1, &GetBinning(observables[i], Beam_E, topology)[0] );
   }
-
-  TH1D * xsec_ECal = new TH1D( (model_name+"_1Dxsec_ECal").c_str(), "", GetBinning("ECal", Beam_E, topology).size()-1, &GetBinning("ECal", Beam_E, topology)[0]);
-  TH1D * xsec_W = new TH1D( (model_name+"_1Dxsec_W").c_str(), "", GetBinning("RecoW", Beam_E, topology).size()-1, &GetBinning("RecoW", Beam_E, topology)[0]);
-  TH1D * xsec_Q2 = new TH1D( (model_name+"_1Dxsec_Q2").c_str(), "", GetBinning("RecoQ2", Beam_E, topology).size()-1, &GetBinning("RecoQ2", Beam_E, topology)[0] );
-  TH1D * xsec_AlphaT = new TH1D( (model_name+"_1Dxsec_DeltaPT").c_str(), "", GetBinning("HadDeltaPT", Beam_E, topology).size()-1, &GetBinning("HadDeltaPT", Beam_E, topology)[0] );
-  TH1D * xsec_DeltaPT = new TH1D( (model_name+"_1Dxsec_AlphaT").c_str(), "", GetBinning("HadAlphaT", Beam_E, topology).size()-1, &GetBinning("HadAlphaT", Beam_E, topology)[0] );
 
   auto in_gen_run_info = evt.run_info();
   //  auto FATXAcc = FATX::MakeAccumulator(rdr->run_info());
@@ -105,11 +95,10 @@ int main(int argc, char* argv[]) {
 
   while (true) { // loop while there are events
     rdr->read_event(evt);
-    rdr->read_event(evt);
     if (rdr->failed()) {
       break;
     }
-
+    ++nprocessed;
     // Set units to GeV
     evt.set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
 
@@ -139,7 +128,7 @@ int main(int argc, char* argv[]) {
     auto q = fslep->momentum() - beampt->momentum();
     auto Q2 = -q.m2();
     if ( Q2 < GetQ2Cut( Ev ) ) continue ; 
-    
+
     // Smear particles according to detector Resolution
     HepMC3::GenParticlePtr fslep_reco = SmearParticles( fslep, Ev ) ;
     auto FSPrimLept = fslep_reco->pid();
@@ -171,16 +160,18 @@ int main(int argc, char* argv[]) {
       if( particle_pdg == 2212 ) ++true_p ;
       else if ( particle_pdg == 2112 ) ++true_n ;
       else if ( particle_pdg == -211 ) ++true_pim ;
-      else if ( particle_pdg == -11 ) ++true_pip;
+      else if ( particle_pdg == 211 ) ++true_pip;
       else if ( particle_pdg == 22 ) ++true_gamma;
       
       // Smear Hadrons 
       HepMC3::GenParticlePtr hadron_smeared = SmearParticles( hadrons[i], Ev ) ;
 
       // Apply momentum and angle cuts for hadrons 
-      if( hadron_smeared->momentum().theta() * 180 / TMath::Pi() < GetParticleMinTheta( particle_pdg, hadron_smeared->momentum().p3mod(), Ev ) ) continue;
+      if( hadron_smeared->momentum().theta() * TMath::RadToDeg() < GetParticleMinTheta( particle_pdg, hadron_smeared->momentum().p3mod(), Ev ) ) continue;
+      if( hadron_smeared->momentum().theta() * TMath::RadToDeg() > 140 ) continue;
       if( hadron_smeared->momentum().p3mod() < GetMinMomentumCut( particle_pdg, Ev ) ) continue ;
-      
+      if( particle_pdg == 22 && !ApplyPhotRadCut(beampt->momentum(),hadron_smeared->momentum())) continue ;
+
       // Count detected hadrons 
       if( particle_pdg == 2212 ) {
 	++reco_p ;
@@ -199,9 +190,9 @@ int main(int argc, char* argv[]) {
       
       // Save reconstructed hadrons in new vector
       if( particle_pdg == 2212 || TMath::Abs(particle_pdg) == 211 ) hadrons_reco.push_back(hadron_smeared);
-
+ 
     }
-    
+
     // Select 1p1pim (- or +) events
     if ( reco_p != 1 ) continue ; 
     if ( topology == "1p1pim" ) { 
@@ -212,33 +203,25 @@ int main(int argc, char* argv[]) {
       if ( reco_pip != 1 ) continue ;
     }
     if ( reco_gamma != 0 ) continue ;
-
+    
     // Store histogram with same binning as data. For now is only MC comparison 
-    xsec_El->Fill(El);
-    xsec_pl->Fill(Pl);
-    xsec_thetal->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
-    xsec_pp->Fill(proton->momentum().p3mod());
-    xsec_thetap->Fill(proton->momentum().theta()*180/TMath::Pi());
-    xsec_ppi->Fill(pion->momentum().p3mod());
-    xsec_thetapi->Fill(pion->momentum().theta()*180/TMath::Pi());
-    xsec_W->Fill(GetW(fslep_reco,beampt));
-    xsec_Q2->Fill(GetQ2(fslep_reco,beampt));
-    xsec_ECal->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()));
+    histograms["Efl"]->Fill(El);
+    histograms["pfl"]->Fill(Pl);
+    histograms["pfl_theta"]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
+    histograms["proton_mom"]->Fill(proton->momentum().p3mod());
+    histograms["proton_theta"]->Fill(proton->momentum().theta()*180/TMath::Pi());
+    histograms["pim_mom"]->Fill(pion->momentum().p3mod());
+    histograms["pim_theta"]->Fill(pion->momentum().theta()*180/TMath::Pi());
+    histograms["ECal"]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()));
+    histograms["RecoW"]->Fill(GetW(fslep_reco,beampt));
+    histograms["RecoQ2"]->Fill(GetQ2(fslep_reco,beampt));
+    //    histograms["HadDeltaPT"]
+   
     //double evw = FATXAcc->process(evt);
-    ++nprocessed;
-  }
-
+}
+  std::cout << " Total processed: " << nprocessed << std::endl;
   // Write the histogram to the file
-  xsec_El->Write();
-  xsec_pl->Write();  
-  xsec_thetal->Write();
-  xsec_pp->Write();  
-  xsec_thetap->Write();
-  xsec_ppi->Write();  
-  xsec_thetapi->Write();
-  xsec_W->Write();
-  xsec_Q2->Write();
-  xsec_ECal->Write();
+  for ( auto it = histograms.begin(); it != histograms.end(); it++) (it->second)->Write();
 
   // Close the file
   outfile->Close();
