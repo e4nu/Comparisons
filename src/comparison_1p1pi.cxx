@@ -106,7 +106,6 @@ int main(int argc, char* argv[]) {
 
   // re-open the file so that you start at the beginning
   size_t nprocessed = 0 ;
-  double xsec = 0 ; // in pb 
   
   double has_chex = 0 ;
   double in_peak = 0;
