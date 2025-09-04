@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <filesystem>
 #include "NuHepMC/HepMC3Features.hxx"
-//#include "NuHepMC/Reader.hxx"
+#include "NuHepMC/Reader.hxx"
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/WriterUtils.hxx"
@@ -53,19 +53,28 @@ int main(int argc, char* argv[]) {
   }
 
   // Analyse file(s) : 
-  auto rdr = HepMC3::deduce_reader(input_hepmc3_files[0]);
-  // auto rdr = HepMC3::Reader(input_hepmc3_file);
+  ////auto rdr = HepMC3::deduce_reader(input_hepmc3_files[0]);
+  auto rdr = NuHepMC::Reader(input_hepmc3_files[0]); // If file is nuhepmc v0.9
+  /* for new format
   if (!rdr) {
     std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_files[0] << std::endl;
     return 1;
-  }
+    }*/
 
   HepMC3::GenEvent evt;
+  /* for new format
   rdr->read_event(evt);
   if (rdr->failed()) {
     std::cout << "Failed to read first event from " << input_hepmc3_files[0] << "."
 	      << std::endl;
     return 1;
+    }*/
+
+  // old format
+  if ( ! rdr.read_event(evt) ) {
+    std::cout << "Failed to read first event from " << input_hepmc3_files[0] << "."                
+              << std::endl;                                                                                                                                    
+    return 1;  
   }
 
   // Read beam energy and target from first event 
@@ -98,11 +107,19 @@ int main(int argc, char* argv[]) {
   
   TFile * outfile = new TFile((output_name+".root").c_str(), "RECREATE");
 
+  std::cout << " HEREEEEE " << std::endl;
+
   auto in_gen_run_info = evt.run_info();
-  //  auto FATXAcc = FATX::MakeAccumulator(rdr->run_info());
-  auto vtx_statuses = NuHepMC::GR5::ReadVertexStatusIdDefinitions(in_gen_run_info);
-  auto part_statuses = NuHepMC::GR6::ReadParticleStatusIdDefinitions(in_gen_run_info);
+  /*auto FATXAcc = FATX::MakeAccumulator(rdr->run_info());*/ // new format
+  std::cout << " HEREEEEE " << std::endl;
+  auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
+  ////////auto vtx_statuses = NuHepMC::GR5::ReadVertexStatusIdDefinitions(in_gen_run_info);
+  std::cout << " HEREEEEE " << std::endl;
+  auto vtx_statuses = NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
+  ////////auto part_statuses = NuHepMC::GR6::ReadParticleStatusIdDefinitions(in_gen_run_info);
+  auto part_statuses = NuHepMC::GR10::ReadParticleStatusIdDefinitions(in_gen_run_info);
   auto out_gen_run_info = std::make_shared<HepMC3::GenRunInfo>(*in_gen_run_info);
+
 
   // re-open the file so that you start at the beginning
   size_t nprocessed = 0 ;
@@ -112,17 +129,23 @@ int main(int argc, char* argv[]) {
   double in_peak = 0;
   bool first_pass = false ; 
   for( unsigned int id = 0 ; id < input_hepmc3_files.size() ; ++id ) { 
-    rdr = HepMC3::deduce_reader(input_hepmc3_files[id]);
-  
+    ////rdr = HepMC3::deduce_reader(input_hepmc3_files[id]);
+    //////////rdr = NuHepMC::Reader(input_hepmc3_files[id]);
+    /* 
     if (!rdr) {
       std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_files[id] << ". Skipping... " << std::endl;
       continue;
-    }
-
+      } */ // Need to catch error instead 
+    std::cout << " HERE " << std::endl;
     while (true) { // loop while there are events
-      rdr->read_event(evt);
+      /* rdr->read_event(evt);*/
+      rdr.read_event(evt);
 
+      /*
       if (rdr->failed()) {
+	break;
+	}*/
+      if( !rdr.failed() ) { 
 	break;
       }
 
@@ -136,12 +159,15 @@ int main(int argc, char* argv[]) {
       auto tgtpt = NuHepMC::Event::GetTargetParticle(evt);
       auto primary_vtx = Event::GetPrimaryVertex(evt);
       auto process_id = ER3::ReadProcessID(evt);
-      auto proc_ids = GR4::ReadProcessIdDefinitions(in_gen_run_info);
+      //////auto proc_ids = GR4::ReadProcessIdDefinitions(in_gen_run_info);
+      auto proc_ids = GR8::ReadProcessIdDefinitions(in_gen_run_info);
       if (!beampt || !tgtpt) {  // this event didn't have a beam particle or target, its an odd one
 	continue;
       }
 
-      // Read XSec 
+      // Read XSec
+      double evw = FATXAcc->process(evt);
+
       if( !evt.cross_section() ) std::cout << " xsec not defined " << std::endl;
       else xsec = evt.cross_section()->xsec(); 
 
@@ -192,10 +218,6 @@ int main(int argc, char* argv[]) {
 	double particle_py   = hadrons[i]->momentum().py();
 	double particle_pz   = hadrons[i]->momentum().pz();
 	double particle_mod  = hadrons[i]->momentum().p3mod();
-
-	//std::cout << " W : " << GetW(fslep,beampt) << "  W reco : " << GetW(fslep_reco,beampt) << " Had System Mass : " << HadSystemMass(hadrons) << std::endl;
-
-	//	std::cout << particle_pdg << " e = " << particle_e << " px = " << particle_px << " py = " << particle_py << " pz " << particle_pz << " mod " << particle_mod << std::endl;
 
 	if( particle_pdg == 2212 ) ++true_p ;
 	else if ( particle_pdg == 2112 ) ++true_n ;
@@ -291,6 +313,12 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << " Analised " << nprocessed << " events. "<< std::endl;
+
+  double fatx = FATXAcc->fatx(NuHepMC::CrossSection::Units::cm2ten38_PerNucleon);
+  //// //  double fatx = FATXAcc->fatx(); // in pb/Atom
+  double sumw = FATXAcc->sumweights();
+  size_t nevents = FATXAcc->events();
+
   xsec = 1 ; 
   // Write the histogram to the file
   for ( auto it = histograms.begin(); it != histograms.end(); it++) { 
@@ -312,12 +340,7 @@ int main(int argc, char* argv[]) {
 
   // Clean up
   delete outfile;
-	
-  //  double fatx = FATXAcc->fatx(cm2ten38_PerNucleon);
-  //  double fatx = FATXAcc->fatx(); // in pb/Atom
-  //  double sumw = FATXAcc->sumweights();
-  //  size_t nevents = FATXAcc->events();
-
+       
 }
 
 
@@ -429,6 +452,5 @@ int main(int argc, char* argv[]) {
 	std::cout << " Event summary. NPiM before (after) FSI: " << npim_vertex << " (" << npim_postFSI << ")"<<std::endl;
 	std::cout << " Event summary. NPiP before (after) FSI: " << npip_vertex << " (" << npip_postFSI << ")"<<std::endl;
   
-	//double evw = FATXAcc->process(evt);
 	}
 */
