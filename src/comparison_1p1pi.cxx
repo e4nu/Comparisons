@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
       if ( reco_gamma != 0 ) continue ;
 
       std::string process_name = "total" ;
-      std::cout << El << std::endl;
+      
       histograms["Efl"+process_name]->Fill(El);
       histograms["pfl"+process_name]->Fill(Pl);
       histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
