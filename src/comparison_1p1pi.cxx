@@ -136,9 +136,6 @@ int main(int argc, char* argv[]) {
       // Read XSec
       //double evw = FATXAcc->process(evt);
 
-      if( !evt.cross_section() ) std::cout << " xsec not defined " << std::endl;
-      else xsec = evt.cross_section()->xsec(); 
-
       // Read in-electron properties:
       auto BeamPdg = beampt->pid();
       auto Ev = beampt->momentum().e();
@@ -288,7 +285,7 @@ int main(int argc, char* argv[]) {
   // double sumw = FATXAcc->sumweights();
   //size_t nevents = FATXAcc->events();
 
-  xsec = 1 ; 
+  double xsec = 1 ; // this will change 
   // Write the histogram to the file
   for ( auto it = histograms.begin(); it != histograms.end(); it++) { 
     // Normalize by bin witdh and xsection 
