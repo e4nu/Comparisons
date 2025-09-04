@@ -53,24 +53,10 @@ int main(int argc, char* argv[]) {
   }
 
   // Analyse file(s) : 
-  ////auto rdr = HepMC3::deduce_reader(input_hepmc3_files[0]);
   auto rdr = NuHepMC::Reader(input_hepmc3_files[0]); // If file is nuhepmc v0.9
-  /* for new format
-  if (!rdr) {
-    std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_files[0] << std::endl;
-    return 1;
-    }*/
+  // Check it doesnt fail -!!
 
   HepMC3::GenEvent evt;
-  /* for new format
-  rdr->read_event(evt);
-  if (rdr->failed()) {
-    std::cout << "Failed to read first event from " << input_hepmc3_files[0] << "."
-	      << std::endl;
-    return 1;
-    }*/
-
-  // old format
   if ( ! rdr.read_event(evt) ) {
     std::cout << "Failed to read first event from " << input_hepmc3_files[0] << "."                
               << std::endl;                                                                                                                                    
@@ -107,24 +93,16 @@ int main(int argc, char* argv[]) {
   
   TFile * outfile = new TFile((output_name+".root").c_str(), "RECREATE");
 
-  std::cout << " HEREEEEE " << std::endl;
-
   auto in_gen_run_info = evt.run_info();
-  /*auto FATXAcc = FATX::MakeAccumulator(rdr->run_info());*/ // new format
   // FAILS HERE
   /* terminate called after throwing an instance of 'NuHepMC::NullObjectException'
   what():  
   Aborted (core dumped)*/
 
   //---> auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
-
-  ////////auto vtx_statuses = NuHepMC::GR5::ReadVertexStatusIdDefinitions(in_gen_run_info);
-  std::cout << " HEREEEEE " << std::endl;
   auto vtx_statuses = NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
-  ////////auto part_statuses = NuHepMC::GR6::ReadParticleStatusIdDefinitions(in_gen_run_info);
   auto part_statuses = NuHepMC::GR10::ReadParticleStatusIdDefinitions(in_gen_run_info);
   auto out_gen_run_info = std::make_shared<HepMC3::GenRunInfo>(*in_gen_run_info);
-
 
   // re-open the file so that you start at the beginning
   size_t nprocessed = 0 ;
@@ -134,25 +112,10 @@ int main(int argc, char* argv[]) {
   double in_peak = 0;
   bool first_pass = false ; 
   for( unsigned int id = 0 ; id < input_hepmc3_files.size() ; ++id ) { 
-    ////rdr = HepMC3::deduce_reader(input_hepmc3_files[id]);
-    //////////rdr = NuHepMC::Reader(input_hepmc3_files[id]);
-    /* 
-    if (!rdr) {
-      std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_files[id] << ". Skipping... " << std::endl;
-      continue;
-      } */ // Need to catch error instead 
-
+    //ISSUE STARTS NOW IN EVENT 1////////rdr = NuHepMC::Reader(input_hepmc3_files[id]);
     while (true) { // loop while there are events
-      /* rdr->read_event(evt);*/
       rdr.read_event(evt);
-
-      /*
-      if (rdr->failed()) {
-	break;
-	}*/
-      if( !rdr.failed() ) { 
-	break;
-      }
+      if( rdr.failed() ) break;
 
       ++nprocessed;
 
@@ -164,8 +127,8 @@ int main(int argc, char* argv[]) {
       auto tgtpt = NuHepMC::Event::GetTargetParticle(evt);
       auto primary_vtx = Event::GetPrimaryVertex(evt);
       auto process_id = ER3::ReadProcessID(evt);
-      //////auto proc_ids = GR4::ReadProcessIdDefinitions(in_gen_run_info);
       auto proc_ids = GR8::ReadProcessIdDefinitions(in_gen_run_info);
+
       if (!beampt || !tgtpt) {  // this event didn't have a beam particle or target, its an odd one
 	continue;
       }
@@ -271,6 +234,7 @@ int main(int argc, char* argv[]) {
       if ( reco_gamma != 0 ) continue ;
 
       std::string process_name = "total" ;
+      std::cout << El << std::endl;
       histograms["Efl"+process_name]->Fill(El);
       histograms["pfl"+process_name]->Fill(Pl);
       histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
@@ -419,6 +383,7 @@ int main(int argc, char* argv[]) {
 	// Find neutrals 
 	auto pid_neutral = part->pid();
 	if( pid_neutral == 2112 || pid_neutral == 111 ) {
+
 	is_neutral = true ; 
 	is_neutral_id = part->id() ;
 	initial_T = part->momentum().e()-part->momentum().m() ;
