@@ -1,6 +1,7 @@
 // Leave this at the top to enable features detected at build time in headers in
 // HepMC3
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TMath.h>
 #include "NuHepMC/HepMC3Features.hxx"
 #include "NuHepMC/EventUtils.hxx"
@@ -138,7 +139,6 @@ double GetParticleResolution( const int pdg, const double Beam_E ) {
 
 HepMC3::GenParticlePtr SmearParticles( auto particle, const double Beam_E ){
   HepMC3::GenParticlePtr smeared_particle = std::make_shared<HepMC3::GenParticle>(particle->data()); ;
-  return smeared_particle;
   double res = GetParticleResolution( particle->pid(), Beam_E );
   double p = particle->momentum().p3mod();
   double M = GetParticleMass( particle->pid() ) ;
@@ -163,6 +163,7 @@ double GetParticleMinTheta( const int pdg, const double out_mom, const double Be
     if( Beam_E < 2 ) min_theta = 17 + 7.0 / out_mom ; // deg 
     else if ( Beam_E > 2 && Beam_E < 4 ) min_theta = 16 + 10.5 / out_mom ; // deg
     else if ( Beam_E > 4 ) min_theta = 13.5 + 15 / out_mom ; // deg 
+    if ( min_theta < 15. ) min_theta = 15 ; 
   } 
   else if ( pdg == 2212 ) min_theta = 10 ; 
   else if ( pdg == -211 ) {
@@ -258,7 +259,7 @@ double GetW(HepMC3::ConstGenParticlePtr fsl, HepMC3::ConstGenParticlePtr isl){
   double nu = isl->momentum().e() - fsl->momentum().e();
   auto q3 = isl->momentum() - fsl->momentum(); 
   double W2 = std::pow(mp + nu, 2) - pow(q3.p3mod(),2);
-  //if (W2 < 0) return 0;
+  if (W2 < 0) return 0;
   return TMath::Sqrt(W2);
   return std::pow(mp + nu, 2) ;
 }
@@ -317,10 +318,10 @@ double DeltaAlphaT(HepMC3::ConstGenParticlePtr fsl, const std::vector<HepMC3::Co
 double HadSystemMass( const std::vector<HepMC3::ConstGenParticlePtr>& hadrons ) { 
   HepMC3::FourVector tot_hadrons(0,0,0,0);
   for (const auto& had : hadrons) {
+    if( had->pid() == 11 ) continue ; // Skip the electron is the final lepton. 
     tot_hadrons += had->momentum();
   }
-  
-  return tot_hadrons.p3mod();
+  return tot_hadrons.m();
 }
 
 std::vector<double> GetUniformBinning(unsigned int nbins, double min, double max) {
