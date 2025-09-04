@@ -111,8 +111,13 @@ int main(int argc, char* argv[]) {
 
   auto in_gen_run_info = evt.run_info();
   /*auto FATXAcc = FATX::MakeAccumulator(rdr->run_info());*/ // new format
-  std::cout << " HEREEEEE " << std::endl;
-  auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
+  // FAILS HERE
+  /* terminate called after throwing an instance of 'NuHepMC::NullObjectException'
+  what():  
+  Aborted (core dumped)*/
+
+  //---> auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
+
   ////////auto vtx_statuses = NuHepMC::GR5::ReadVertexStatusIdDefinitions(in_gen_run_info);
   std::cout << " HEREEEEE " << std::endl;
   auto vtx_statuses = NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
@@ -136,7 +141,7 @@ int main(int argc, char* argv[]) {
       std::cout << "Failed to instantiate HepMC3::Reader from " << input_hepmc3_files[id] << ". Skipping... " << std::endl;
       continue;
       } */ // Need to catch error instead 
-    std::cout << " HERE " << std::endl;
+
     while (true) { // loop while there are events
       /* rdr->read_event(evt);*/
       rdr.read_event(evt);
@@ -166,7 +171,7 @@ int main(int argc, char* argv[]) {
       }
 
       // Read XSec
-      double evw = FATXAcc->process(evt);
+      //double evw = FATXAcc->process(evt);
 
       if( !evt.cross_section() ) std::cout << " xsec not defined " << std::endl;
       else xsec = evt.cross_section()->xsec(); 
@@ -314,10 +319,10 @@ int main(int argc, char* argv[]) {
 
   std::cout << " Analised " << nprocessed << " events. "<< std::endl;
 
-  double fatx = FATXAcc->fatx(NuHepMC::CrossSection::Units::cm2ten38_PerNucleon);
+  //double fatx = FATXAcc->fatx(NuHepMC::CrossSection::Units::cm2ten38_PerNucleon);
   //// //  double fatx = FATXAcc->fatx(); // in pb/Atom
-  double sumw = FATXAcc->sumweights();
-  size_t nevents = FATXAcc->events();
+  // double sumw = FATXAcc->sumweights();
+  //size_t nevents = FATXAcc->events();
 
   xsec = 1 ; 
   // Write the histogram to the file
