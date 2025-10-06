@@ -97,9 +97,11 @@ int main(int argc, char* argv[]) {
   // FAILS HERE
   /* terminate called after throwing an instance of 'NuHepMC::NullObjectException'
   what():  
-  Aborted (core dumped)*/
+  Aborted (core dumped)
+  */
 
-  //---> auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
+  //---> 
+  auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
   auto vtx_statuses = NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
   auto part_statuses = NuHepMC::GR10::ReadParticleStatusIdDefinitions(in_gen_run_info);
   auto out_gen_run_info = std::make_shared<HepMC3::GenRunInfo>(*in_gen_run_info);
@@ -111,7 +113,8 @@ int main(int argc, char* argv[]) {
   double in_peak = 0;
   bool first_pass = false ; 
   for( unsigned int id = 0 ; id < input_hepmc3_files.size() ; ++id ) { 
-    //ISSUE STARTS NOW IN EVENT 1////////rdr = NuHepMC::Reader(input_hepmc3_files[id]);
+    //ISSUE STARTS NOW IN EVENT 1////////
+    auto rdr = NuHepMC::Reader(input_hepmc3_files[id]);
     while (true) { // loop while there are events
       rdr.read_event(evt);
       if( rdr.failed() ) break;
