@@ -106,7 +106,6 @@ int main(int argc, char* argv[]) {
   double in_peak = 0;
   bool first_pass = false ; 
   for( unsigned int id = 0 ; id < input_hepmc3_files.size() ; ++id ) { 
-    //ISSUE STARTS NOW IN EVENT 1////////
     auto rdr = NuHepMC::Reader(input_hepmc3_files[id]);
     while (true) { // loop while there are events
       rdr.read_event(evt);
@@ -275,27 +274,20 @@ int main(int argc, char* argv[]) {
 
   std::cout << " Analised " << nprocessed << " events. "<< std::endl;
 
-  //double fatx = FATXAcc->fatx(NuHepMC::CrossSection::Units::cm2ten38_PerNucleon);
-  double fatx = FATXAcc->fatx(); // in pb/Atom
+  double fatx = FATXAcc->fatx() * 1E-3 ; // in nb/Atom
   double sumw = FATXAcc->sumweights();
-  // Convert to right units for comparison
-  //  sumw *= TMath::Power(10.,-8);
-  size_t nevents = FATXAcc->events();
-
-  double xsec = sumw ; 
+  
   // Write the histogram to the file
   for ( auto it = histograms.begin(); it != histograms.end(); it++) { 
-    // Normalize by bin witdh and xsection 
-    std::cout << xsec << " pb/Atom " << std::endl;
-    
-    NormalizeHist(it->second, xsec / nprocessed );
+    // Normalize by bin witdh and xsection
+    NormalizeHist(it->second, fatx/sumw );
     // Save
     (it->second)->Write();
   }
 
   for ( auto it = histograms2D.begin(); it != histograms2D.end(); it++) { 
     // Normalize by total number of events 
-    NormalizeHist(it->second, xsec / nprocessed );
+    NormalizeHist(it->second, fatx/sumw );
     // Save
     (it->second)->Write();
   }
