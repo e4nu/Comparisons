@@ -94,13 +94,6 @@ int main(int argc, char* argv[]) {
   TFile * outfile = new TFile((output_name+".root").c_str(), "RECREATE");
 
   auto in_gen_run_info = evt.run_info();
-  // FAILS HERE
-  /* terminate called after throwing an instance of 'NuHepMC::NullObjectException'
-  what():  
-  Aborted (core dumped)
-  */
-
-  //---> 
   auto FATXAcc = FATX::MakeAccumulator(rdr.run_info());
   auto vtx_statuses = NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
   auto part_statuses = NuHepMC::GR10::ReadParticleStatusIdDefinitions(in_gen_run_info);
@@ -136,7 +129,7 @@ int main(int argc, char* argv[]) {
       }
 
       // Read XSec
-      //double evw = FATXAcc->process(evt);
+      double evw = FATXAcc->process(evt);
 
       // Read in-electron properties:
       auto BeamPdg = beampt->pid();
@@ -283,22 +276,26 @@ int main(int argc, char* argv[]) {
   std::cout << " Analised " << nprocessed << " events. "<< std::endl;
 
   //double fatx = FATXAcc->fatx(NuHepMC::CrossSection::Units::cm2ten38_PerNucleon);
-  //// //  double fatx = FATXAcc->fatx(); // in pb/Atom
-  // double sumw = FATXAcc->sumweights();
-  //size_t nevents = FATXAcc->events();
+  double fatx = FATXAcc->fatx(); // in pb/Atom
+  double sumw = FATXAcc->sumweights();
+  // Convert to right units for comparison
+  //  sumw *= TMath::Power(10.,-8);
+  size_t nevents = FATXAcc->events();
 
-  double xsec = 1 ; // this will change 
+  double xsec = sumw ; 
   // Write the histogram to the file
   for ( auto it = histograms.begin(); it != histograms.end(); it++) { 
     // Normalize by bin witdh and xsection 
-    NormalizeHist(it->second, 1 ) ;//xsec / nprocessed );
+    std::cout << xsec << " pb/Atom " << std::endl;
+    
+    NormalizeHist(it->second, xsec / nprocessed );
     // Save
     (it->second)->Write();
   }
 
   for ( auto it = histograms2D.begin(); it != histograms2D.end(); it++) { 
     // Normalize by total number of events 
-    NormalizeHist(it->second, 1 ) ;//xsec / nprocessed );
+    NormalizeHist(it->second, xsec / nprocessed );
     // Save
     (it->second)->Write();
   }
