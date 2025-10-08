@@ -231,22 +231,22 @@ int main(int argc, char* argv[]) {
 
       std::string process_name = "total" ;
       
-      histograms["Efl"+process_name]->Fill(El);
-      histograms["pfl"+process_name]->Fill(Pl);
-      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
-      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt));
-      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt));
-      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod());
-      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi());
-      histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod());
-      histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi());
-      histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()));
-      histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco));
-      histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag());
-      histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco));
+      histograms["Efl"+process_name]->Fill(El,evw);
+      histograms["pfl"+process_name]->Fill(Pl,evw);
+      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
+      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
+      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod(),evw);
+      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
+      histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
+      histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
+      histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);
     
-      histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt));
-      histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco));
+      histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt),evw);
+      histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco),evw);
 
       
       if ( process_id >= 200 && process_id < 300 ) process_name = "QEL";
@@ -258,22 +258,22 @@ int main(int argc, char* argv[]) {
 	else process_name = "DIS";
       }
 
-      histograms["Efl"+process_name]->Fill(El);
-      histograms["pfl"+process_name]->Fill(Pl);
-      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi());
-      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt));
-      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt));
-      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod());
-      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi());
-      histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod());
-      histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi());
-      histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()));
-      histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco));
-      histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag());
-      histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco));
+      histograms["Efl"+process_name]->Fill(El,evw);
+      histograms["pfl"+process_name]->Fill(Pl,evw);
+      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
+      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
+      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod(),evw);
+      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
+      histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
+      histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
+      histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);
 
-      histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt));
-      histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco));
+      histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt),evw);
+      histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco),evw);
     }
   }
 
@@ -281,7 +281,7 @@ int main(int argc, char* argv[]) {
 
   double fatx = FATXAcc->fatx() * 1E-3 ; // in nb/Atom
   double sumw = FATXAcc->sumweights();
-  
+  std::cout << fatx << " / " << sumw << std::endl;
   // Write the histogram to the file
   for ( auto it = histograms.begin(); it != histograms.end(); it++) { 
     // Normalize by bin witdh and xsection
