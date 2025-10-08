@@ -52,6 +52,11 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
+  if(!input_hepmc3_files.size()){
+    std::cout << "found no files." << std::endl;
+    return 1;
+  }
+
   // Analyse file(s) : 
   auto rdr = NuHepMC::Reader(input_hepmc3_files[0]); // If file is nuhepmc v0.9
   // Check it doesnt fail -!!
