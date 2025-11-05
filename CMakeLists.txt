@@ -13,6 +13,7 @@ set(SOURCES
 
 # Add executable target
 add_executable(comparison_1p1pi src/comparison_1p1pi.cxx ${SOURCES})
+add_executable(plot_comparisons src/plot_comparisons.cxx ${SOURCES})
 
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIRS})
@@ -20,6 +21,11 @@ target_link_libraries(comparison_1p1pi PUBLIC ROOT::Physics)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Tree)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Hist)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Gpad)
+
+target_link_libraries(plot_comparisons PUBLIC ROOT::Physics)
+target_link_libraries(plot_comparisons PUBLIC ROOT::Tree)
+target_link_libraries(plot_comparisons PUBLIC ROOT::Hist)
+target_link_libraries(plot_comparisons PUBLIC ROOT::Gpad)
 
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules)
 
@@ -33,4 +39,5 @@ CPMAddPackage(
   OPTIONS "CMAKE_CXX_STANDARD 17"
 )
 target_link_libraries(comparison_1p1pi PUBLIC NuHepMC::CPPUtils)
+target_link_libraries(plot_comparisons PUBLIC NuHepMC::CPPUtils)
 

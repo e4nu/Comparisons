@@ -28,6 +28,8 @@ using namespace std;
 // * analysis-key: i.e. 1p1pim                                 //
 // * beam-energy : energy                                      //
 // * log-scale : y log-scale                                   //
+// * scale : scaling factor, default 1                         //
+// * y-max : maximum y for axis range.                         //
 // * plot-ratio                                                //
 /////////////////////////////////////////////////////////////////
 
@@ -47,6 +49,8 @@ int main( int argc, char* argv[] ) {
   std::string observable = "ECal";
   std::string analysis_key = "1p1pim";
   double EBeam = 1 ;
+  double scale = 1 ; 
+  double y_max = -1 ; 
   bool add_ratio = false, is_log = false;
   if( argc > 1 ) { // configure rest of analysis
     if( ExistArg("mc-files",argc,argv)) {
@@ -106,6 +110,12 @@ int main( int argc, char* argv[] ) {
     }
     if( ExistArg("log-scale", argc, argv)) { 
       is_log = true ; 
+    }
+    if( ExistArg("scale",argc,argv)) {
+      scale = stod( GetArg("scale",argc,argv) ) ; 
+    }
+    if( ExistArg("y-max",argc,argv)) {
+      y_max = stod( GetArg("y-max",argc,argv) ) ; 
     }
   }
 
@@ -167,6 +177,8 @@ int main( int argc, char* argv[] ) {
   }
   ymax *= ( 1+0.2 ) ;
 
+  if( y_max > 0 ) ymax = y_max; 
+
   for( unsigned int i = 0 ; i < hists.size(); ++i ){
     StandardFormat( hists[i], "", color_list[i+1], 1, observable, is_log, ymax );
     hists[i] -> SetLineStyle(1);
@@ -174,7 +186,7 @@ int main( int argc, char* argv[] ) {
     hists[i] -> GetYaxis() -> TAxis::SetMaxDigits(3);
     hists[i] -> SetStats(0);
     hists[i] -> SetMarkerSize(1.6);
-
+    hists[i] -> Scale( scale );
     if( i == 0 ) hists[i] -> Draw("hist err");
     else hists[i] -> Draw("hist err same");
 
@@ -183,6 +195,7 @@ int main( int argc, char* argv[] ) {
 
   // Plot
   if( h_data != nullptr ) {
+    h_data ->Scale(scale);
     h_data ->Draw("err same");
     StandardFormat( h_data, "", color_list[0], 1, observable, is_log, ymax );
     h_data -> SetMarkerStyle(8);

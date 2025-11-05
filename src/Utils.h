@@ -3,6 +3,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TMath.h>
+#include "TStyle.h"
 #include "NuHepMC/HepMC3Features.hxx"
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
@@ -89,30 +90,326 @@ std::string GetArg(std::string op, int argc, char ** argv )
   return value ;
 }
 
-
-bool ExistArg(std::string op, int argc, char ** argv )
+std::string GetAxisLabel(std::string observable, unsigned int id_axis, std::string units)
 {
-  const int buf_size = 2048*128;
-  char *  argument   = new char[buf_size];
-  strcpy(argument, "");
+  std::string x_axis, y_axis, unit = "#mub";
+  if ( units == "nb" ) unit = "nb";
 
-  while(argc>2)
+  if (observable == "ECal")
     {
-      if (argv[1][0] == '-' && argv[1][1] == '-') {
-
-	char op_cur[buf_size];
-	strcpy(op_cur,&argv[1][2]);
-
-	if (strcmp(op.c_str(),op_cur)==0) {
-	  return true ;
-	}
-      }
-      argc--;
-      argv++;
-
+      x_axis = "E_{Cal} [GeV]";
+      y_axis = "d#sigma/dE_{Cal} #left["+unit+" GeV^{-1}#right]";
     }
-  delete [] argument ;
-  return false;
+  else if (observable == "Efl")
+    {
+      x_axis = "E_{e'} [GeV]";
+      y_axis = "d#sigma/dE_{e'} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "pfl_theta")
+    {
+      x_axis = "#theta_{e'} [deg]";
+      y_axis = "d#sigma/d#theta_{e'} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "pfl_phi")
+    {
+      x_axis = "#phi_{e'} [deg]";
+      y_axis = "d#sigma/d#phi_{e'} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "pfl")
+    {
+      x_axis = "p_{e'} [GeV/c]";
+      y_axis = "d#sigma/dp_{e'} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "pfl_T")
+    {
+      x_axis = "p_{e'}^{T} [GeV/c]";
+      y_axis = "d#sigma/dp_{e'}^{T} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "proton_mom")
+    {
+      x_axis = "p_{p} [GeV/c]";
+      y_axis = "d#sigma/dp_{p} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "proton_theta")
+    {
+      x_axis = "#theta_{p} [deg]";
+      y_axis = "d#sigma/d#theta_{p} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "proton_phi")
+    {
+      x_axis = "E_{Cal} [GeV]";
+      y_axis = "d#sigma/dE_{Cal} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "pim_mom")
+    {
+      x_axis = "p_{#pi^{-}} [GeV/c]";
+      y_axis = "d#sigma/dp_{#pi^{-}} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "pim_theta")
+    {
+      x_axis = "#theta_{#pi^{-}} [deg]";
+      y_axis = "d#sigma/d#theta_{#pi^{-}} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "pip_mom")
+    {
+      x_axis = "p_{#pi^{+}} [GeV/c]";
+      y_axis = "d#sigma/dp_{#pi^{+}} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "pip_theta")
+    {
+      x_axis = "#theta_{#pi^{+}} [deg]";
+      y_axis = "d#sigma/d#theta_{#pi^{+}} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "RecoW")
+    {
+      x_axis = "W [GeV]";
+      y_axis = "d#sigma/dW #left["+unit+" GeV^{-1}#right#right]";
+    }
+  else if (observable == "RecoQELEnu")
+    {
+      x_axis = "E^{QE} [GeV]";
+      y_axis = "d#sigma/dE^{QE} #left["+unit+" GeV^{-1}#right#right]";
+    }
+  else if (observable == "RecoXBJK")
+    {
+      x_axis = "x_{BJK} [GeV]";
+      y_axis = "d#sigma/dx_{BJK} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "RecoQ2")
+    {
+      x_axis = "Q^{2} [GeV^{2}]";
+      y_axis = "d#sigma/dQ^{2} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "Recoq3")
+    {
+      x_axis = "q_{3} [GeV]";
+      y_axis = "d#sigma/dq_{3} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "DeltaPT")
+    {
+      x_axis = "#deltap_{T} [GeV]";
+      y_axis = "d#sigma/d#deltap_{T} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "HadDeltaPT")
+    {
+      x_axis = "#deltap_{T} [GeV]";
+      y_axis = "d#sigma/d#deltap_{T} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "HadDeltaPTx")
+    {
+      x_axis = "#deltap_{Tx} [GeV]";
+      y_axis = "d#sigma/d#deltap_{Tx} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "HadDeltaPTy")
+    {
+      x_axis = "#deltap_{Ty} [GeV]";
+      y_axis = "d#sigma/d#deltap_{Ty} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "InferedNucleonMom")
+    {
+      x_axis = "p_{N,proxy} [GeV]";
+      y_axis = "d#sigma/dp_{N,proxy} #left["+unit+" #left(GeV/c#right)^{-1}#right]";
+    }
+  else if (observable == "DeltaPhiT")
+    {
+      x_axis = "#delta#phi_{T} [deg]";
+      y_axis = "d#sigma/d#delta#phi_{T} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "HadDeltaPhiT")
+    {
+      x_axis = "#delta#phi_{T}^{had} [deg]";
+      y_axis = "d#sigma/d#delta#phi_{T}^{had} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "AlphaT")
+    {
+      x_axis = "#alpha_{T} [deg]";
+      y_axis = "d#sigma/d#alpha_{T} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "HadAlphaT")
+    {
+      x_axis = "#delta#alpha_{T} [deg]";
+      y_axis = "d#sigma/d#delta#alpha_{T} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "RecoEnergyTransfer")
+    {
+      x_axis = "#omega [GeV]";
+      y_axis = "d#sigma/d#omega #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "HadSystemMass")
+    {
+      x_axis = "M_{had}[GeV]";
+      y_axis = "d#sigma/dM_{had} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "MissingEnergy")
+    {
+      x_axis = "E_{miss}[GeV]";
+      y_axis = "d#sigma/dE_{miss} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "MissingTransMomentum")
+    {
+      x_axis = "E_{miss}[GeV]";
+      y_axis = "d#sigma/dp_{miss}^{T} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "CorrMissingEnergy")
+    {
+      x_axis = "E_{miss}^{corr}[GeV]";
+      y_axis = "d#sigma/dE_{miss}^{corr} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "CorrMissingEnergy1")
+    {
+      x_axis = "E_{miss}^{corr}[GeV]";
+      y_axis = "d#sigma/dE_{miss}^{corr} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "CorrMissingEnergy2")
+    {
+      x_axis = "E_{miss}^{corr}[GeV]";
+      y_axis = "d#sigma/dE_{miss}^{corr} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "CorrMissingEnergy3")
+    {
+      x_axis = "E_{miss}^{corr}[GeV]";
+      y_axis = "d#sigma/dE_{miss}^{corr} #left["+unit+" GeV^{-1}#right]";
+    }
+  else if (observable == "MissingAngle")
+    {
+      x_axis = "#theta_{miss}[deg]";
+      y_axis = "d#sigma/d#theta_{miss} #left["+unit+" deg^{-1}#right]";
+    }
+  else if (observable == "MissingMomentum")
+    {
+      x_axis = "p_{miss}[GeV/c]";
+      y_axis = "d#sigma/dp_{miss} #left["+unit+" (GeV/c)^{-1}#right]";
+    }
+  else if (observable == "HadronsAngle")
+    {
+      x_axis = "#theta_{had}[deg]";
+      y_axis = "d#sigma/d#theta_{had} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "AdlerAngleThetaP")
+    {
+      x_axis = "#theta_{p}^{*}[deg]";
+      y_axis = "d#sigma/d#theta_{p}^{*} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "AdlerAnglePhiP")
+    {
+      x_axis = "#phi_{p}^{*}[deg]";
+      y_axis = "d#sigma/d#phi_{p}^{*} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "AdlerAngleThetaPi")
+    {
+      x_axis = "#theta_{#pi}^{*}[deg]";
+      y_axis = "d#sigma/d#theta_{#pi}^{*} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "AdlerAnglePhiPi")
+    {
+      x_axis = "#phi_{#pi}^{*}[deg]";
+      y_axis = "d#sigma/d#phi_{#pi}^{*} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "Angleqvshad")
+    {
+      x_axis = "#theta_{#vec{q}#dot#vec{p}_{had}}[deg]";
+      y_axis = "d#sigma/d#theta_{#vec{q}#dot#vec{p}_{had}} #left["+unit+" (deg)^{-1}#right]";
+    }
+  else if (observable == "RecoEvPion")
+    {
+      x_axis = "E_{rec} [GeV]";
+      y_axis = "d#sigma/dE_{rec} #left["+unit+" GeV^{-1}#right#right]";
+    }
+  else if (observable == "RecoWPion")
+    {
+      x_axis = "W_{rec} [GeV]";
+      y_axis = "d#sigma/dW_{rec} #left["+unit+" GeV^{-1}#right#right]";
+    }
+  else if (observable == "ElectronPT")
+    {
+      x_axis = "p_{e',T} [GeV]";
+      y_axis = "d#sigma/dp_{e'T} #left["+unit+" GeV^{-1}#right#right]";
+    }
+  else if (observable == "PionPT")
+    {
+      x_axis = "p_{#pi,T} [GeV]";
+      y_axis = "d#sigma/dp_{#pi,T} #left["+unit+" GeV^{-1}#right#right]";
+    }
+
+  if (id_axis == 0)
+    return x_axis;
+  return y_axis;
+}
+
+void StandardFormat(TH1D *prediction, std::string title, int color, int style, std::string observable, bool is_log, double y_max  )
+{
+  gStyle->SetFrameBorderMode(0);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetPadColor(0);
+  gStyle->SetCanvasColor(0);
+  gStyle->SetStatColor(0);
+  gStyle->SetFillColor(0);
+  gStyle->SetLegendBorderSize(1);
+  gStyle->SetPaperSize(20, 26);
+  gStyle->SetTitleFont(132, "pad");
+  gStyle->SetMarkerStyle(20);
+  gStyle->SetLineStyleString(2, "[12 12]");
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  gStyle->SetTextFont(132);
+
+  prediction->SetLineColor(color);
+  prediction->SetLineStyle(style);
+  prediction->SetMarkerStyle(style);
+  prediction->SetMarkerColor(color);
+  prediction->SetLineWidth(2);
+
+  prediction->SetTitle(title.c_str());
+  // prediction -> SetTitleFont(13);
+  prediction->GetXaxis()->SetTitle(GetAxisLabel(observable, 0, "nb").c_str());
+
+  prediction->GetYaxis()->SetTitle(GetAxisLabel(observable, 1, "nb").c_str());
+
+  prediction->GetXaxis()->CenterTitle();
+  prediction->GetYaxis()->CenterTitle();
+
+  prediction->BufferEmpty(-1);
+  if (y_max == 0)
+    {
+      double max = -999;
+      for (unsigned int k = 0; k < prediction->GetNbinsX(); ++k)
+	{
+	  if (prediction->GetBinContent(k) > max)
+	    max = prediction->GetBinContent(k);
+	}
+      // y_max = (prediction -> GetMaximum()) * ( 1+0.2 );
+      y_max = max * (1 + 0.2);
+    }
+
+  if( y_max == 0 ) y_max = 100; // for empty plots.
+
+  int FontStyle = 132;
+  prediction->GetXaxis()->SetTitleOffset(1.1);
+  prediction->GetXaxis()->SetLabelSize(0.1);
+  prediction->GetXaxis()->SetTitleSize(0.08);
+  prediction->GetXaxis()->SetNdivisions(5,3,0);
+  prediction->GetXaxis()->SetLabelFont(FontStyle);
+  prediction->GetXaxis()->SetTitleFont(FontStyle);
+
+  prediction->GetYaxis()->SetNdivisions(4,4,0);
+  prediction->GetYaxis()->SetTitleOffset(1.4);
+  prediction->GetYaxis()->SetLabelSize(0.1);
+  prediction->GetYaxis()->SetTitleSize(0.09);
+  prediction->GetYaxis()->SetLabelFont(43);
+  prediction->GetYaxis()->SetLabelFont(FontStyle);
+  prediction->GetYaxis()->SetTitleFont(FontStyle);
+  if( is_log ) {
+    prediction->GetYaxis()->SetRangeUser(1E-4, y_max);
+  } else { prediction->GetYaxis()->SetRangeUser(0.1, y_max); }
+  
+
+  prediction->GetYaxis()->SetMaxDigits(3);
+  prediction->SetTitleFont(FontStyle);
+
+  return;
 }
 
 double GetParticleMass( const int pdg ) {
@@ -135,6 +432,33 @@ double GetParticleResolution( const int pdg, const double Beam_E ) {
   else if ( pdg == 211 || pdg == -211 || pdg == 22 ) resolution = 0.007 ;
   if ( Beam_E < 2 ) resolution *= 3; // Is it only this value or beam_E>1.1 GeV ? 
   return resolution ; 
+}
+
+
+bool ExistArg(std::string op, int argc, char **argv)
+{
+  const int buf_size = 2048 * 128;
+  char *argument = new char[buf_size];
+  strcpy(argument, "");
+
+  while (argc > 2)
+    {
+      if (argv[1][0] == '-' && argv[1][1] == '-')
+	{
+
+	  char op_cur[buf_size];
+	  strcpy(op_cur, &argv[1][2]);
+
+	  if (strcmp(op.c_str(), op_cur) == 0)
+	    {
+	      return true;
+	    }
+	}
+      argc--;
+      argv++;
+    }
+  delete[] argument;
+  return false;
 }
 
 HepMC3::GenParticlePtr SmearParticles( auto particle, const double Beam_E ){
@@ -328,9 +652,9 @@ std::vector<double> GetUniformBinning(unsigned int nbins, double min, double max
   std::vector<double> binning;
   double step = (max - min) / nbins;
   for (unsigned int i = 0; i < nbins + 1; ++i)
-  {
-    binning.push_back(min + i * step);
-  }
+    {
+      binning.push_back(min + i * step);
+    }
   return binning;
 }
 
@@ -344,15 +668,15 @@ std::vector<double> GetECalBinning(unsigned int nbins_tail, unsigned int nbins_p
 
   double step = (temp_max - temp_min) / nbins_tail;
   for (unsigned int i = 0; i < nbins_tail + 1; ++i)
-  {
-    binning.push_back(temp_min + i * step);
-  }
+    {
+      binning.push_back(temp_min + i * step);
+    }
 
   step = (max - temp_max) / nbins_peak;
   for (unsigned int i = 1; i < nbins_peak + 1; ++i)
-  {
-    binning.push_back(temp_max + i * step);
-  }
+    {
+      binning.push_back(temp_max + i * step);
+    }
   return binning;
 }
 
@@ -361,611 +685,734 @@ std::vector<double> GetBinning(std::string observable, double EBeam, std::string
   std::vector<double> binning;
 
   if (observable == "ECal") {
-    if (EBeam < 2) binning = GetECalBinning(13, 15, 0.6, EBeam + 0.15, EBeam);
-    else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(13, 15, 0.6, EBeam + 0.15, EBeam);
-    else if (EBeam > 4) binning = GetECalBinning(13, 15, 1.8, EBeam + 0.15, EBeam);
+    if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(10, 10, 0.6, EBeam + 0.15, EBeam);
+    else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(10, 10, 0.6, EBeam + 0.15, EBeam);
+    else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(10, 10, 1.8, EBeam + 0.15, EBeam);
+  } else if (observable == "RecoEvPion") {
+    if (EBeam > 0 && EBeam < 2 )
+      binning = GetUniformBinning(15, 0, 2);
+    else if (EBeam > 2 && EBeam < 4)
+      binning = GetUniformBinning(15, 0.5, 3.5);
+    else if (EBeam > 4 && EBeam < 5)
+      binning = GetUniformBinning(15, 2, 6);
   } else if (observable == "Efl") {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.35, 0.9);
+    if (EBeam > 0 && EBeam < 2 )
+      binning = GetUniformBinning(15, 0.35, 0.9);
     else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.5, 1.7);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 1.2, 3.8);
+      binning = GetUniformBinning(15, 0.5, 1.7);
+    else if (EBeam > 4 && EBeam < 5)
+      binning = GetUniformBinning(15, 1.2, 3.8);
   } else if (observable == "DiffECal") {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, -0.6, 0.2);
+    if (EBeam > 0 && EBeam < 2 )
+      binning = GetUniformBinning(15, -0.6, 0.2);
     else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, -0.6, 0.2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, -0.6, 0.2);
+      binning = GetUniformBinning(15, -0.6, 0.2);
+    else if (EBeam > 4 && EBeam < 5)
+      binning = GetUniformBinning(15, -0.6, 0.2);
   }
   else if (observable == "pfl_theta")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 20, 50);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 20, 50);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 15, 50);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 20, 50);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 20, 50);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 15, 50);
+    }
   else if (observable == "pfl_phi")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "pfl")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.35, 0.9);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(28, 0.5, 1.9);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(20, 1.1, 3.8);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0.35, 0.9);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.5, 1.9);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 1.1, 3.8);
+    }
   else if (observable == "pfl_T")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.2, 0.6);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.3, 0.9);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0.5, 1.2);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0.2, 0.6);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.3, 0.9);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0.5, 1.2);
+    }
   else if (observable == "proton_mom")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.2, 1.1);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.2, 2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0.2, 3);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0.2001, 1.0999);
+      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0.2001, 1.9999);
+      else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 0.2001, 2.9999);
+    }
   else if (observable == "proton_theta")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(23, 5, 140);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(23, 5, 140);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(23, 5, 140);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 20, 80);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 20, 80);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 20, 80);
+    }
   else if (observable == "proton_phi")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(35, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(35, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(35, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "pim_mom")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.1, 0.6);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0., 1.6);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0., 2);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0.1, 0.6);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0., 1.6);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0., 2);
+    }
   else if (observable == "pim_theta")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(23, 5, 140);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(23, 5, 140);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(23, 5, 140);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 5, 140);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 5, 140);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 5, 140);
+    }
   else if (observable == "pip_mom")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.1, 3);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.1, 3);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0.1, 3);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0.1, 3);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.1, 3);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0.1, 3);
+    }
   else if (observable == "pip_theta")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 5, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 5, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 5, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 5, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 5, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 5, 180);
+    }
   else if (observable == "RecoW")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 1, 1.5);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 1, 2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 1, 2.5);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 1, 1.49);
+      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 1, 1.9);
+      else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 1, 2.49);
+    }
   else if (observable == "RecoXBJK")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 0.9);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 0.9);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 0.9);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 0.9);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 1);
+    }
   else if (observable == "RecoQ2")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0.15, 0.45);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.3, 1.5);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0.9, 3);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0.15, 0.45);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.3, 1.5);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0.9, 3);
+    }
   else if (observable == "RecoQELEnu")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(20, 0., 0.8);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0.3, EBeam + 0.2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0.9, EBeam + 0.2);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0., 0.8);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.3, EBeam + 0.2);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0.9, EBeam + 0.2);
+    }
   else if (observable == "Recoq3")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, EBeam + 0.2);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, EBeam + 0.2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, EBeam + 0.2);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, EBeam + 0.2);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, EBeam + 0.2);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, EBeam + 0.2);
+    }
   else if (observable == "HadDeltaPT" || observable == "DeltaPT")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 1);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 1);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0.0001, 0.999);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0.0001, 0.999);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0.0001, 0.999);
+    }
   else if (observable == "HadDeltaPTx")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, -0.6, 0.6);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, -1, 1);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, -1, 1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, -0.6, 0.6);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, -1, 1);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, -1, 1);
+    }
   else if (observable == "HadDeltaPTy")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, -0.6, 0.6);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, -1, 1);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, -1, 1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, -0.6, 0.6);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, -1, 1);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, -1, 1);
+    }
   else if (observable == "HadDeltaPhiT" || observable == "DeltaPhiT")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 80);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 80);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 80);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 80);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 80);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 80);
+    }
   else if (observable == "AlphaT")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(20, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "HadAlphaT")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(15, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "RecoEnergyTransfer")
-  {
-    if (EBeam < 2) binning = GetUniformBinning(25, 0., 0.8);
-    else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(25, 0., 2);
-    else if (EBeam > 4) binning = GetUniformBinning(25, 0, 4);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0., 0.7);
+      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0.2, 1.2);
+      else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 1.5, 3.);
+    }
   else if (observable == "HadSystemMass")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 1, 1.6);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 1, 2);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 1, 2.7);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 1, 1.6);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(20, 1, 2);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 1, 2.7);
+    }
   else if (observable == "MissingEnergy")
-  {
-    if (EBeam < 2) binning = GetECalBinning(20,60, -0.15, 1, 0.1);
-    else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(20, 60, -0.15, 2, 0.1);
-    else if (EBeam > 4) binning = GetECalBinning(20, 60, -0.15, 3, 0.1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(15,10, -0.15, 0.47, 0.1);
+      else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(10, 12, -0.15, 1.7, 0.2);
+      else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(8, 12, -0.15, 3.2, 0.2);
+    }
   else if (observable == "MissingTransMomentum")
-  {
-    if (EBeam < 2)
-    binning = GetECalBinning(25, 15, 0.3, 1.1, 0.9);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetECalBinning(25, 15, -0.7, 1.2, 0.9);
-    else if (EBeam > 4)
-    binning = GetECalBinning(25, 15, -2.5, 1.2, 0.9);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetECalBinning(15, 15, 0.3, 1.1, 0.9);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetECalBinning(15, 15, -0.7, 1.2, 0.9);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetECalBinning(15, 15, -2.5, 1.2, 0.9);
+    }
   else if (observable == "CorrMissingEnergy" || observable == "CorrMissingEnergy1" || observable == "CorrMissingEnergy2" || observable == "CorrMissingEnergy3")
-  {
-    if (EBeam < 2)
-    binning = GetECalBinning(25, 15, 0.3, 1.1, 0.9);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetECalBinning(25, 15, -0.7, 1.2, 0.9);
-    else if (EBeam > 4)
-    binning = GetECalBinning(25, 15, -2.5, 1.2, 0.9);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetECalBinning(15, 15, 0.3, 1.1, 0.9);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetECalBinning(15, 15, -0.7, 1.2, 0.9);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetECalBinning(15, 15, -2.5, 1.2, 0.9);
+    }
   else if (observable == "MissingAngle")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 15, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(13, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "MissingMomentum")
-  {
-    if (EBeam < 2) binning = GetECalBinning(20,60, -0.15, 1.5, 0.15);
-    else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(20, 60, -0.15, 2.2, 0.15);
-    else if (EBeam > 4) binning = GetECalBinning(20, 60, -0.15, 3.5, 0.15);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(15, 10, -0.15, 1.5, 0.3);
+      else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(10, 10, -0.15, 2.2, 0.35);
+      else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(10, 10, -0.15, 3.5, 0.35);
+    }
   else if (observable == "InferedNucleonMom")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(30, 0, 0.8);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(30, 0, 1);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(30, 0, 1);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 0.8);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 1);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 1);
+    }
   else if (observable == "HadronsAngle")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(30, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(30, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(30, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "AdlerAngleThetaP")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    }
   else if (observable == "AdlerAnglePhiP")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  } else if (observable == "AdlerAngleThetaPi")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 180);
-  } else if (observable == "AdlerAnglePhiPi")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(30, 20, 180);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 20, 180);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 20, 180);
-  } else if (observable == "Angleqvshad")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 120);
-    else if (EBeam > 2 && EBeam < 4)
-    binning = GetUniformBinning(25, 0, 120);
-    else if (EBeam > 4)
-    binning = GetUniformBinning(25, 0, 60);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    } else if (observable == "AdlerAngleThetaPi")
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 180);
+    } else if (observable == "AdlerAnglePhiPi")
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(10, 20, 180);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 20, 180);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 20, 180);
+    } else if (observable == "Angleqvshad")
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 120);
+      else if (EBeam > 2 && EBeam < 4)
+	binning = GetUniformBinning(15, 0, 120);
+      else if (EBeam > 4 && EBeam < 5)
+	binning = GetUniformBinning(15, 0, 60);
+    }
   else if (observable == "HadDeltaPT" || observable == "DeltaPT")
-  {
-    if (EBeam < 2)
-    binning = GetUniformBinning(25, 0, 0.7);
-  }
+    {
+      if (EBeam > 0 && EBeam < 2 )
+	binning = GetUniformBinning(15, 0, 0.7);
+    }
   else if (observable == "TrueNProtons" || observable == "TrueNNeutrons" || observable == "TrueNPiP" || observable == "TrueNPiM" || observable == "TrueNPi0" || observable == "TrueNCh" )
-  {
-    binning = GetUniformBinning(5, -0.5, 5.5);
-  }
+    {
+      binning = GetUniformBinning(5, -0.5, 5.5);
+    }
 
   if (analysis_key == "1pip")
-  {
-    if (observable == "ECal")
     {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 20, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 20, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 20, 180);
+      if (observable == "ECal")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 20, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 20, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 20, 180);
+	}
+      else if (observable == "RecoW")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 1, 1.49);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 1, 1.9);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 1, 2.49);
+	}
+      else if (observable == "AdlerAnglePhiPi")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(30, 20, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 20, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 20, 180);
+	}
+      else if (observable == "Angleqvshad")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 70);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 50);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 30);
+	}
+      else if (observable == "RecoEvPion")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 2);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0.5, 3.5);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 2, 6);
+	}
+      else if (observable == "ElectronPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0.2, 0.7);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 1);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 1);
+	}
+      else if (observable == "PionPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 0.5);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 1);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 1);
+	}
+      else if (observable == "Angleqvshad")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 120);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 120);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 60);
+	}
+      else if (observable == "HadDeltaPT" || observable == "DeltaPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0, 0.7);
+	}
     }
-    else if (observable == "AdlerAnglePhiPi")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(30, 20, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 20, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 20, 180);
-    }
-    else if (observable == "Angleqvshad")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 70);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 50);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 30);
-    }
-    else if (observable == "RecoEvPion")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 2);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0.5, 3.5);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 2, 6);
-    }
-    else if (observable == "RecoWPion")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0.5, 2);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 1, 2);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0.5, 3.5);
-    }
-    else if (observable == "ElectronPT")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0.2, 0.7);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "PionPT")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 0.5);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "Angleqvshad")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 120);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 120);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 60);
-    }
-    else if (observable == "HadDeltaPT" || observable == "DeltaPT")
-    {
-      if (EBeam < 2) binning = GetUniformBinning(25, 0, 0.7);
-    }
-  }
 
   if (analysis_key == "1p1pip")
-  {
+    {
+      if (observable == "ECal")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(10, 10, 0.6, EBeam + 0.15, EBeam);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(20, 10, 0.6, EBeam + 0.15, EBeam);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(20, 10, 1.8, EBeam + 0.15, EBeam);
+	}
+      else if (observable == "pfl_theta")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 20, 50);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 20, 50);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(20, 15, 50);
+	}
+      else if (observable == "pfl")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0.35, 0.9);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 0.5, 1.9);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(20, 1.1, 3.8);
+	}
+      else if (observable == "proton_mom")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(10, 0.2001, 1.0999);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0.2001, 1.9999);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 0.2001, 2.9999);
+	}
+      else if (observable == "proton_theta")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 80);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(20, 0, 80);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(20, 0, 80);
+	}
+      else if (observable == "HadDeltaPT" || observable == "DeltaPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0.0001, 0.999);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0.0001, 0.999);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 0.001, 0.999);
+	}
+      else if (observable == "HadDeltaPhiT" || observable == "DeltaPhiT")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0, 80);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0, 80);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 0, 80);
+	}
+      else if (observable == "HadAlphaT")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(10, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 0, 180);
+	}
+      else if (observable == "HadSystemMass")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 1, 1.6);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 1, 2);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 1, 2.7);
+	}
+      else if (observable == "HadronsAngle")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(20, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(30, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(30, 0, 180);
+	}
+      else if (observable == "pip_mom")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 0.1, 0.6);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 0.1, 1.2);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(20, 0.1, 2.2);
+	}
+      else if (observable == "pip_theta")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 5, 130);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(20, 5, 130);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(20, 5, 130);
+	}
+      else if (observable == "MissingEnergy")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(5,8, -0.15, 0.47, 0.1);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(10, 15, -0.15, 1.7, 0.2);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(10, 15, -0.15, 3.2, 0.2);
+	}
+      else if (observable == "CorrMissingEnergy"||observable == "CorrMissingEnergy1"||observable == "CorrMissingEnergy2"||observable == "CorrMissingEnergy3")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0.5, 1);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 1);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 1);
+	}
+      else if (observable == "MissingAngle")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(10, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 180);
+	}
+      else if (observable == "MissingMomentum")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetECalBinning(5,8, -0.1, 1.5, 0.1);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(5, 10, -0.15, 2, 0.15);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetECalBinning(5, 10, -0.15, 4, 0.2);
+	}
+      else if (observable == "InferedNucleonMom")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(30, 0, 0.8);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(30, 0, 1);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 1);
+	}
+      else if (observable == "Angleqvshad")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(30, 0, 120);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(30, 0, 120);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 120);
+	}
+      else if (observable == "HadronsAngle")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(20, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(30, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(30, 0, 180);
+	}
+      else if (observable == "AdlerAngleThetaPi")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(10, 0, 180);
+	}
+      else if (observable == "AdlerAnglePhiPi")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 180);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(10, 0, 180);
+	}
+      else if (observable == "Angleqvshad")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0, 120);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 0, 120);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 60);
+	}
+      else if (observable == "RecoW")
+	{
+	  if (EBeam > 0 && EBeam < 2 ) binning = GetUniformBinning(15, 1, 1.49);
+	  else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(20, 1, 1.9);
+	  else if (EBeam > 4 && EBeam < 5) binning = GetUniformBinning(15, 1, 2.49);
+	}
+      else if (observable == "RecoQ2")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0.15, 0.45);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(20, 0.3, 1.5);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(20, 0.9, 3);
+	}
+    }
+  else if (analysis_key == "1pim")
+    {
+      if (observable == "ECal")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetECalBinning(15, 10, 0.6, EBeam + 0.2, EBeam);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetECalBinning(15, 10, 0.6, EBeam + 0.2, EBeam);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetECalBinning(15, 10, 1.2, EBeam + 0.2, EBeam);
+	}
+      if (observable == "RecoEvPion")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(50, 0.5, 2);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(50, 0.5, 3.5);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(50, 1, 7);
+	}
+      if (observable == "RecoWPion")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(15, 0.9, 2);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(15, 1, 2);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(15, 0, 4);
+	}
+      else if (observable == "ElectronPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(50, 0, 0.5);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(50, 0, 1);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(50, 0, 1);
+	}
+      else if (observable == "PionPT")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(50, 0, 0.5);
+	}
+      else if (observable == "RecoEvPion")
+	{
+	  if (EBeam > 0 && EBeam < 2 )
+	    binning = GetUniformBinning(30, 0.5, 2);
+	  else if (EBeam > 2 && EBeam < 4)
+	    binning = GetUniformBinning(30, 0.5, 3.5);
+	  else if (EBeam > 4 && EBeam < 5)
+	    binning = GetUniformBinning(30, 2, 6);
+	}
+    }
+  else if (analysis_key == "1pip") {
+
     if (observable == "ECal")
-    {
-      if (EBeam < 2) binning = GetECalBinning(10, 10, 0.7, EBeam + 0.1, EBeam);
-      else if (EBeam > 2 && EBeam < 4) binning = GetECalBinning(20, 10, 0.8, EBeam + 0.2, EBeam);
-      else if (EBeam > 4) binning = GetECalBinning(20, 10, 1.2, EBeam + 0.2, EBeam);
-    }
-    else if (observable == "proton_mom")
-    {
-      if (EBeam < 2) binning = GetUniformBinning(20, 0.2, 1);
-      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(30, 0.2, 2);
-      else if (EBeam > 4) binning = GetUniformBinning(30, 0.2, 3);
-    }
-    else if (observable == "proton_theta")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(23, 0, 140);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(23, 0, 140);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(23, 0, 140);
-    }
-    else if (observable == "pfl_theta")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 24, 48);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 20, 50);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 15, 50);
-    }
-    else if (observable == "HadDeltaPT" || observable == "DeltaPT")
-    {
-      if (EBeam < 2) binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 4) binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "HadDeltaPhiT" || observable == "DeltaPhiT")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(15, 0, 80);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 80);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 80);
-    }
-    else if (observable == "HadSystemMass")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(15, 1, 1.6);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 1, 2);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 1, 2.7);
-    }
-    else if (observable == "HadronsAngle")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(20, 0, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(30, 0, 180);
-    }
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetECalBinning(15, 10, 0.6, EBeam + 0.2, EBeam);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetECalBinning(15, 10, 1, EBeam + 0.2, EBeam);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetECalBinning(15, 10, 1, EBeam + 0.2, EBeam);
+      }
     else if (observable == "pip_mom")
-    {
-      if (EBeam < 2) binning = GetUniformBinning(25, 0.1, 0.6);
-      else if (EBeam > 2 && EBeam < 4) binning = GetUniformBinning(25, 0.1, 1.2);
-      else if (EBeam > 4) binning = GetUniformBinning(25, 0.1, 2.2);
-    }
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(15, 0, 0.6);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(15, 0.3, 1.2);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(15, 0, 2.5);
+      }
     else if (observable == "pip_theta")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(20, 10, 130);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(20, 10, 130);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(20, 10, 130);
-    }
-    else if (observable == "MissingEnergy")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0.5, 1);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "CorrMissingEnergy"||observable == "CorrMissingEnergy1"||observable == "CorrMissingEnergy2"||observable == "CorrMissingEnergy3")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0.5, 1);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 1);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "MissingAngle")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(30, 0, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(30, 0, 180);
-    }
-    else if (observable == "MissingMomentum")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(20, 0, 2);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 2.2);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(30, 0, 4);
-    }
-    else if (observable == "InferedNucleonMom")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(30, 0, 0.8);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 1);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 1);
-    }
-    else if (observable == "Angleqvshad")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(30, 0, 120);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 120);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 120);
-    }
-    else if (observable == "HadronsAngle")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(20, 0, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(30, 0, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(30, 0, 180);
-    }
-    else if (observable == "AdlerAngleThetaPi")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(10, 0, 180);
-    }
-    else if (observable == "AdlerAnglePhiPi")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 180);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(15, 0, 180);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(10, 0, 180);
-    }
-    else if (observable == "Angleqvshad")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(25, 0, 120);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 0, 120);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 0, 60);
-    }
-    else if (observable == "RecoW")
-    {
-      if (EBeam < 2)
-      binning = GetUniformBinning(15, 1.1, 1.5);
-      else if (EBeam > 2 && EBeam < 4)
-      binning = GetUniformBinning(25, 1, 2);
-      else if (EBeam > 4)
-      binning = GetUniformBinning(25, 1., 2.5);
-    }
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(15, 0, 130);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(15, 0, 120);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(15, 0, 100);
+      }
+    if (observable == "RecoEvPion")
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(50, 0.5, 2);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(50, 0.5, 3.5);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(50, 1, 7);
+      }
+    if (observable == "RecoWPion")
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(50, 0.9, 2);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(50, 1, 2);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(50, 2, 4);
+      }
+    else if (observable == "ElectronPT")
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(50, 0, 0.5);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(50, 0, 1);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(50, 0, 1);
+      }
+    else if (observable == "PionPT")
+      {
+	if (EBeam > 0 && EBeam < 2 )
+	  binning = GetUniformBinning(50, 0, 0.5);
+	else if (EBeam > 2 && EBeam < 4)
+	  binning = GetUniformBinning(50, 0, 1);
+	else if (EBeam > 4 && EBeam < 5)
+	  binning = GetUniformBinning(50, 0, 1);
+      }
   }
 
   if (binning.size() == 0)
-  {
-    std::cout << " ERROR: Binning for " << observable << " is null" << std::endl;
-  }
+    {
+      std::cout << " ERROR: Binning for " << observable << " is null" << std::endl;
+    }
   return binning;
 }
 
@@ -1013,3 +1460,4 @@ void NormalizeHist(TH2D *h, double normalization_factor)
 	}
     }
 }
+
