@@ -42,6 +42,9 @@ int main( int argc, char* argv[] ) {
     return 0;
   }
 
+  
+  TH1::AddDirectory(kFALSE);
+
   std::vector<string> mc_files, names_list ;
   TFile* in_data = nullptr ;
   TH1D* h_data = nullptr ;
@@ -67,13 +70,14 @@ int main( int argc, char* argv[] ) {
     } else { return 0 ; }
 
     if( ExistArg("mc-names",argc,argv)) {
-      names_list.clear();
       string input = GetArg("mc-names",argc,argv);
       stringstream ss(input);
+      int counter = 0 ; 
       while( ss.good() ){
 	string substr;
 	getline( ss, substr, ',' );
-	names_list.push_back( substr );
+	names_list[counter] = substr ;
+        ++counter ; 
       }
 
       if( names_list.size() != mc_files.size() ) return 0;
@@ -91,8 +95,12 @@ int main( int argc, char* argv[] ) {
 	return 0 ; 
       } 
       h_data = (TH1D*)in_data->Get("Data");
+      h_data->SetDirectory(0);
+    
+      in_data->Close();
+      delete in_data;
     }    
-  
+    
     double energy  = 1 ; 
     if( ExistArg("beam-energy",argc,argv)) {
       string input = GetArg("beam-energy",argc,argv);
@@ -104,6 +112,9 @@ int main( int argc, char* argv[] ) {
 
     if( ExistArg("observable", argc,argv)) { 
       observable = GetArg("observable",argc,argv); 
+    }
+    if( ExistArg("output-file", argc,argv)) { 
+      output_file = GetArg("output-file",argc,argv); 
     }
     if( ExistArg("add-ratio", argc, argv)) { 
       add_ratio = true ; 
@@ -167,6 +178,7 @@ int main( int argc, char* argv[] ) {
     std::string hist_name = names_list[id]+"_1Dxsec_"+observable+"_total";
     hists.push_back( (TH1D*)in_root_files[id]->Get(hist_name.c_str()) );
     if( !hists[id] ) { std::cout << "ERROR: the histogram " << hist_name << " does not exist." <<std::endl; return 0;}
+    hists[id]->SetDirectory(0);
 
     // Find maximum 
     double max = 0 ;
@@ -179,6 +191,11 @@ int main( int argc, char* argv[] ) {
 
   if( y_max > 0 ) ymax = y_max; 
 
+  for (auto f : in_root_files) {
+    f->Close();
+    delete f;
+  }
+
   for( unsigned int i = 0 ; i < hists.size(); ++i ){
     StandardFormat( hists[i], "", color_list[i+1], 1, observable, is_log, ymax );
     hists[i] -> SetLineStyle(1);
@@ -187,6 +204,11 @@ int main( int argc, char* argv[] ) {
     hists[i] -> SetStats(0);
     hists[i] -> SetMarkerSize(1.6);
     hists[i] -> Scale( scale );
+
+    double I_error = 0 ; 
+    double I = hists[i]->IntegralAndError(1, hists[i]->GetNbinsX(), I_error, "width");
+    std::cout << " MC " << names_list[i] +" Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
+
     if( i == 0 ) hists[i] -> Draw("hist err");
     else hists[i] -> Draw("hist err same");
 
@@ -196,6 +218,11 @@ int main( int argc, char* argv[] ) {
   // Plot
   if( h_data != nullptr ) {
     h_data ->Scale(scale);
+
+    double I_error = 0 ; 
+    double I = h_data->IntegralAndError(1, h_data->GetNbinsX(), I_error, "width");
+    std::cout << " Data Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
+
     h_data ->Draw("err same");
     StandardFormat( h_data, "", color_list[0], 1, observable, is_log, ymax );
     h_data -> SetMarkerStyle(8);

@@ -401,9 +401,11 @@ void StandardFormat(TH1D *prediction, std::string title, int color, int style, s
   prediction->GetYaxis()->SetLabelFont(43);
   prediction->GetYaxis()->SetLabelFont(FontStyle);
   prediction->GetYaxis()->SetTitleFont(FontStyle);
+
+  prediction->GetYaxis()->SetRangeUser(0.001, y_max); 
   if( is_log ) {
-    prediction->GetYaxis()->SetRangeUser(1E-4, y_max);
-  } else { prediction->GetYaxis()->SetRangeUser(0.1, y_max); }
+    prediction->GetYaxis()->SetRangeUser(0.1, y_max);
+  } 
   
 
   prediction->GetYaxis()->SetMaxDigits(3);
