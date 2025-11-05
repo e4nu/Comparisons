@@ -23,6 +23,7 @@ using namespace std;
 // Options:                                                    //
 // * mc-files : comma-sparated list of MC files                //
 // * mc-names : comma-separated list of MC names               //
+// * mc-label : comma-separated list of labels for MC          //
 // * output-file : file to store plots (in root, pdf... format)//
 // * observable : observable used for the x axis definition    //
 // * analysis-key: i.e. 1p1pim                                 //
@@ -45,7 +46,7 @@ int main( int argc, char* argv[] ) {
   
   TH1::AddDirectory(kFALSE);
 
-  std::vector<string> mc_files, names_list ;
+  std::vector<string> mc_files, names_list, mc_label ;
   TFile* in_data = nullptr ;
   TH1D* h_data = nullptr ;
   std::string output_file = "comparisons";
@@ -70,18 +71,29 @@ int main( int argc, char* argv[] ) {
     } else { return 0 ; }
 
     if( ExistArg("mc-names",argc,argv)) {
+      names_list.clear();
       string input = GetArg("mc-names",argc,argv);
       stringstream ss(input);
-      int counter = 0 ; 
       while( ss.good() ){
 	string substr;
 	getline( ss, substr, ',' );
-	names_list[counter] = substr ;
-        ++counter ; 
+	names_list.push_back(substr) ;
+      }
+      
+      if( names_list.size() != mc_files.size() ) return 0;
+    }
+
+    if( ExistArg("mc-label",argc,argv)) {
+      string input = GetArg("mc-label",argc,argv);
+      stringstream ss(input);
+      while( ss.good() ){
+	string substr;
+	getline( ss, substr, ',' );
+	mc_label.push_back(substr);
       }
 
-      if( names_list.size() != mc_files.size() ) return 0;
-    } 
+      if( mc_label.size() != mc_files.size() ) return 0;
+    } else mc_label = names_list;
 
     for( unsigned int ni = 0 ; ni < names_list.size() ; ++ni ) { 
       std::cout << " Generator Name: " << names_list[ni] << std::endl;
@@ -205,6 +217,10 @@ int main( int argc, char* argv[] ) {
     hists[i] -> SetMarkerSize(1.6);
     hists[i] -> Scale( scale );
 
+    hists[i]->GetYaxis()->SetRangeUser(0.001, ymax); 
+    if( is_log ) {
+      hists[i]->GetYaxis()->SetRangeUser(0.1, ymax);
+    } 
     double I_error = 0 ; 
     double I = hists[i]->IntegralAndError(1, hists[i]->GetNbinsX(), I_error, "width");
     std::cout << " MC " << names_list[i] +" Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
@@ -212,7 +228,7 @@ int main( int argc, char* argv[] ) {
     if( i == 0 ) hists[i] -> Draw("hist err");
     else hists[i] -> Draw("hist err same");
 
-    legend->AddEntry(hists[i],(names_list[i]).c_str());
+    legend->AddEntry(hists[i],(mc_label[i]).c_str());
   }
 
   // Plot
