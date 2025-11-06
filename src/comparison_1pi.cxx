@@ -111,6 +111,7 @@ int main(int argc, char* argv[]) {
   double in_peak = 0;
   bool first_pass = false ; 
   for( unsigned int id = 0 ; id < input_hepmc3_files.size() ; ++id ) { 
+    std::cout << " File #"<< id << std::endl;
     auto rdr = NuHepMC::Reader(input_hepmc3_files[id]);
     while (true) { // loop while there are events
       rdr.read_event(evt);
@@ -235,8 +236,6 @@ int main(int argc, char* argv[]) {
       histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
       histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
       histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
-      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod(),evw);
-      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi(),evw);
       histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
       histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
       histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
@@ -262,8 +261,6 @@ int main(int argc, char* argv[]) {
       histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
       histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
       histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
-      histograms["proton_mom"+process_name]->Fill(proton->momentum().p3mod(),evw);
-      histograms["proton_theta"+process_name]->Fill(proton->momentum().theta()*180/TMath::Pi(),evw);
       histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
       histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
       histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
