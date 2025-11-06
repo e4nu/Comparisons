@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
   // Define histograms given Beam_E
   std::vector<string> observables = { "Efl", "pfl", "pfl_theta", "proton_mom", "proton_theta", "pim_mom", "pim_theta", "ECal", "RecoW", "RecoQ2", "HadDeltaPT", "HadAlphaT", "HadSystemMass" };
-  std::vector<string> process = {"total", "QEL", "RES", "NonRES", "MEC", "DIS"} ; 
+  std::vector<string> process = {"total", "QEL", "RES", "NonRES", "MEC", "DIS", "0PP", "SPP", "MPP" } ; 
 
   // Define Histograms - binning will come from the data files when available.  
   std::map<string,TH1D*> histograms ; 
@@ -125,7 +125,6 @@ int main(int argc, char* argv[]) {
       // Get Run Info:
       auto beampt = NuHepMC::Event::GetBeamParticle(evt);
       auto tgtpt = NuHepMC::Event::GetTargetParticle(evt);
-      auto primary_vtx = Event::GetPrimaryVertex(evt);
       auto process_id = ER3::ReadProcessID(evt);
       auto proc_ids = GR8::ReadProcessIdDefinitions(in_gen_run_info);
 
@@ -168,6 +167,27 @@ int main(int argc, char* argv[]) {
       if( fslep_reco->momentum().theta() * 180 / TMath::Pi() > 45 /*deg*/ ) continue ;
       if( Pl < GetMinMomentumCut( FSPrimLept, Ev ) ) continue ; 
 
+      // Loop over event particles before and after FSI
+      unsigned int npi_vertex = 0 ; 
+      // Find primary particles 
+      auto primary_vtx = Event::GetPrimaryVertex(evt);
+      for (auto &pt : primary_vtx->particles_out()) {
+	// Count primary particles
+	if( pt->pid() == -211 || pt->pid() == 211 || pt->pid() == 111 ) ++npi_vertex;
+      }
+
+
+      for( auto const &vtx : evt.vertices()){
+	if ( vtx->status() == 12 ) {
+	  for (auto const &pt : vtx->particles_out()) {
+	    // Count pre fsi hadrons
+	    if( pt->status() == 26 ) { 
+	      if( pt->pid() == -211 || pt->pid() == 211 || pt->pid() == 111 ) ++npi_vertex;
+	    }	  
+	  }
+	}
+      }    
+      
       // Read output particles: 
       double true_p = 0, true_pip = 0, true_pim = 0, true_gamma = 0, true_n = 0;
       double reco_p = 0, reco_pip = 0, reco_pim = 0, reco_gamma = 0, reco_n = 0;
@@ -270,6 +290,27 @@ int main(int argc, char* argv[]) {
 
       histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt),evw);
       histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco),evw);
+
+      // Store Before FSI information
+      if( npi_vertex == 1 ) process_name = "SPP";
+      else if ( npi_vertex == 0 ) process_name = "0PP";
+      else process_name = "MPP";
+
+      histograms["Efl"+process_name]->Fill(El,evw);
+      histograms["pfl"+process_name]->Fill(Pl,evw);
+      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
+      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
+      histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
+      histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
+      histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
+      histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
+      histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);
+
+      histograms2D["RecoW,RecoQ2"+process_name]->Fill(GetW(fslep_reco,beampt),GetQ2(fslep_reco,beampt),evw);
+      histograms2D["RecoW,HadSystemMass"+process_name]->Fill(GetW(fslep_reco,beampt),HadSystemMass(hadrons_reco),evw);
+
     }
   }
 
