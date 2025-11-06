@@ -181,7 +181,7 @@ int main( int argc, char* argv[] ) {
   legend->SetTextSize(0.03);
 
   std::vector<TFile*> in_root_files ;
-  std::vector<TH1D*> hists;
+  std::vector<TH1D*> hists, hists_SPP;
   double ymax = 0 ;
   for( unsigned int id = 0 ; id < mc_files.size(); ++id ){
     in_root_files.push_back(new TFile((mc_files[id]).c_str(),"ROOT"));
@@ -191,6 +191,10 @@ int main( int argc, char* argv[] ) {
     hists.push_back( (TH1D*)in_root_files[id]->Get(hist_name.c_str()) );
     if( !hists[id] ) { std::cout << "ERROR: the histogram " << hist_name << " does not exist." <<std::endl; return 0;}
     hists[id]->SetDirectory(0);
+    std::string hist_name_SPP = names_list[id]+"_1Dxsec_"+observable+"_SPP";
+    hists_SPP.push_back( (TH1D*)in_root_files[id]->Get(hist_name_SPP.c_str()) );
+    if( !hists_SPP[id] ) { std::cout << "ERROR: the histogram " << hist_name_SPP << " does not exist." <<std::endl; return 0;}
+    hists_SPP[id]->SetDirectory(0);
 
     // Find maximum 
     double max = 0 ;
@@ -228,7 +232,11 @@ int main( int argc, char* argv[] ) {
     if( i == 0 ) hists[i] -> Draw("hist err");
     else hists[i] -> Draw("hist err same");
 
+    StandardFormat( hists_SPP[i], "", color_list[i+1], 2, observable, is_log, ymax );
+    hists_SPP[i] -> SetMarkerStyle(0);
+    hists_SPP[i] -> Draw("hist err same");
     legend->AddEntry(hists[i],(mc_label[i]).c_str());
+    legend->AddEntry(hists_SPP[i],(mc_label[i]+" SPP").c_str());
   }
 
   // Plot

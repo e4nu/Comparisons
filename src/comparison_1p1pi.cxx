@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Analysing electron-scattering events on " << target_pdg << " at " << Beam_E << " GeV." << std::endl;
 
   // Define histograms given Beam_E
-  std::vector<string> observables = { "Efl", "pfl", "pfl_theta", "proton_mom", "proton_theta", "pim_mom", "pim_theta", "ECal", "RecoW", "RecoQ2", "HadDeltaPT", "HadAlphaT", "HadSystemMass" };
+  std::vector<string> observables = { "Efl", "pfl", "pfl_theta", "proton_mom", "proton_theta", "pim_mom", "pim_theta", "ECal", "RecoW", "RecoQ2", "HadDeltaPT", "HadAlphaT", "HadSystemMass", "MissingEnergy" };
   std::vector<string> process = {"total", "QEL", "RES", "NonRES", "MEC", "DIS", "0PP", "SPP", "MPP" } ; 
 
   // Define Histograms - binning will come from the data files when available.  
@@ -260,6 +260,7 @@ int main(int argc, char* argv[]) {
       histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
       histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
       histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["MissingEnergy"+process_name]->Fill(GetMissingEnergy( NuHepMC::Event::GetBeamParticle(evt), fslep_reco, hadrons_reco, tgtpt->pid()),evw);
       histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
       histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
       histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);
@@ -287,6 +288,7 @@ int main(int argc, char* argv[]) {
       histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
       histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
       histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["MissingEnergy"+process_name]->Fill(GetMissingEnergy( NuHepMC::Event::GetBeamParticle(evt), fslep_reco, hadrons_reco, tgtpt->pid()),evw);
       histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
       histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
       histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);
@@ -308,6 +310,7 @@ int main(int argc, char* argv[]) {
       histograms["pim_mom"+process_name]->Fill(pion->momentum().p3mod(),evw);
       histograms["pim_theta"+process_name]->Fill(pion->momentum().theta()*180/TMath::Pi(),evw);
       histograms["ECal"+process_name]->Fill(GetECal( fslep_reco, hadrons_reco, tgtpt->pid()),evw);
+      histograms["MissingEnergy"+process_name]->Fill(GetMissingEnergy( NuHepMC::Event::GetBeamParticle(evt), fslep_reco, hadrons_reco, tgtpt->pid()),evw);
       histograms["HadAlphaT"+process_name]->Fill(DeltaAlphaT(fslep_reco, hadrons_reco),evw);
       histograms["HadDeltaPT"+process_name]->Fill(DeltaPT(fslep_reco, hadrons_reco).Mag(),evw);
       histograms["HadSystemMass"+process_name]->Fill(HadSystemMass(hadrons_reco),evw);

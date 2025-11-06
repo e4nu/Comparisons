@@ -601,6 +601,18 @@ double GetECal( HepMC3::ConstGenParticlePtr fsl, std::vector<HepMC3::ConstGenPar
   return ECal;
 }
 
+double GetMissingEnergy(  HepMC3::ConstGenParticlePtr isl, HepMC3::ConstGenParticlePtr fsl, std::vector<HepMC3::ConstGenParticlePtr> hadrons, const int tgt) {
+  double omega = isl->momentum().e() - fsl->momentum().e(); 
+  double tot_hadron_E ;
+  // Initial nucleon at rest
+  for( unsigned int i = 0 ; i < hadrons.size() ; ++i ) {
+    if( hadrons[i]->pid() == 11 ) continue ;
+    if( hadrons[i]->pid() == 2212 ) tot_hadron_E += hadrons[i]->momentum().e() - ( GetParticleMass(hadrons[i]->pid()) - GetBindingEnergy(tgt) ) ;
+    else tot_hadron_E += hadrons[i]->momentum().e();
+  }
+  return omega - tot_hadron_E;
+}
+
 TVector3 GetPT(const HepMC3::FourVector& p)
 {
   TVector3 beam_dir(0, 0, 1);
