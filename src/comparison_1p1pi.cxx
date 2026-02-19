@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
 
       // Read out-electron :
       auto primary_leptons = NuHepMC::Event::GetParticles_All(evt, NuHepMC::ParticleStatus::UndecayedPhysical, {beampt->pid()} );
-      if( primary_leptons.size() == 0 ) continue ; // some NEUT events are pauli blocked but still stored. Skip them. 
+      if( primary_leptons.size() == 0 ) continue ; // some NEUT events are pauli blocked but still stored. Skip them.
       auto fslep = primary_leptons.back();  
 
       // Smear e- according to detector Resolution
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
       auto q = fslep_reco->momentum() - beampt->momentum();
       auto Q2 = -q.m2();
       if ( Q2 < GetQ2Cut( Ev ) ) continue ; 
-    
+
       // Apply momentum and angle cuts for electron
       if( fslep_reco->momentum().theta() * 180 / TMath::Pi() < GetParticleMinTheta( FSPrimLept, Pl, Ev ) ) continue ;
       if( fslep_reco->momentum().theta() * 180 / TMath::Pi() > 45 /*deg*/ ) continue ;

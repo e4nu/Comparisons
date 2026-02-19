@@ -21,6 +21,7 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////
 // Options:                                                    //
+// * data : data file                                          //
 // * mc-files : comma-sparated list of MC files                //
 // * mc-names : comma-separated list of MC names               //
 // * mc-label : comma-separated list of labels for MC          //
