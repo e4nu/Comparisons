@@ -14,7 +14,7 @@ set(SOURCES
 # Add executable target
 add_executable(comparison_1pi src/comparison_1pi.cxx ${SOURCES})
 add_executable(comparison_1p1pi src/comparison_1p1pi.cxx ${SOURCES})
-add_executable(plot_comparisons src/comparison_Inclusive.cxx ${SOURCES})
+add_executable(plot_Inclusive src/comparison_Inclusive.cxx ${SOURCES})
 add_executable(plot_comparisons src/plot_comparisons.cxx ${SOURCES})
 
 find_package(ROOT REQUIRED)
