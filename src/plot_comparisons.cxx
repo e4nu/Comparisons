@@ -57,7 +57,7 @@ int main( int argc, char* argv[] ) {
   double EBeam = 1 ;
   double scale = 1 ; 
   double y_max = -1 ; 
-  bool add_ratio = false, is_log = false, area_normalize = false ;
+  bool add_ratio = false, is_log = false, area_normalized = false ;
   if( argc > 1 ) { // configure rest of analysis
     if( ExistArg("mc-files",argc,argv)) {
       string input = GetArg("mc-files",argc,argv);
