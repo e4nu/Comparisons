@@ -33,6 +33,7 @@ using namespace std;
 // * scale : scaling factor, default 1                         //
 // * y-max : maximum y for axis range.                         //
 // * plot-ratio                                                //
+// * area-normalized                                           //
 /////////////////////////////////////////////////////////////////
 
 int main( int argc, char* argv[] ) {
@@ -56,7 +57,7 @@ int main( int argc, char* argv[] ) {
   double EBeam = 1 ;
   double scale = 1 ; 
   double y_max = -1 ; 
-  bool add_ratio = false, is_log = false;
+  bool add_ratio = false, is_log = false, area_normalize = false ;
   if( argc > 1 ) { // configure rest of analysis
     if( ExistArg("mc-files",argc,argv)) {
       string input = GetArg("mc-files",argc,argv);
@@ -134,6 +135,9 @@ int main( int argc, char* argv[] ) {
     }
     if( ExistArg("log-scale", argc, argv)) { 
       is_log = true ; 
+    }
+    if( ExistArg("area-normalized", argc, argv)) { 
+      area_normalized = true ; 
     }
     if( ExistArg("scale",argc,argv)) {
       scale = stod( GetArg("scale",argc,argv) ) ; 
@@ -229,6 +233,7 @@ int main( int argc, char* argv[] ) {
     double I_error = 0 ; 
     double I = hists[i]->IntegralAndError(1, hists[i]->GetNbinsX(), I_error, "width");
     std::cout << " MC " << names_list[i] +" Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
+    if( area_normalized ) hists[i]->Scale(1./I);
 
     if( i == 0 ) hists[i] -> Draw("hist err");
     else hists[i] -> Draw("hist err same");
@@ -247,7 +252,7 @@ int main( int argc, char* argv[] ) {
     double I_error = 0 ; 
     double I = h_data->IntegralAndError(1, h_data->GetNbinsX(), I_error, "width");
     std::cout << " Data Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
-
+    if( area_normalized ) h_data->Scale( 1./I );
     h_data ->Draw("err same");
     StandardFormat( h_data, "", color_list[0], 1, observable, is_log, ymax );
     h_data -> SetMarkerStyle(8);

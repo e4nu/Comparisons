@@ -72,15 +72,16 @@ int main(int argc, char* argv[]) {
   std::cout << "Analysing electron-scattering events on " << target_pdg << " at " << Beam_E << " GeV." << std::endl;
 
   // Define histograms given Beam_E
-  std::vector<string> observables = { "Efl", "pfl", "RecoW", "RecoQ2" };
+  std::vector<string> observables = { "Efl" };
   std::vector<string> process = {"total", "QEL", "RES", "NonRES", "MEC", "DIS", "0PP", "SPP", "MPP" } ; 
 
   // Define Histograms - binning will come from the data files when available.  
   std::map<string,TH1D*> histograms ; 
+  std::vector<double> binning = GetUniformBinning(50, 0, 2.5);
   for ( unsigned int i = 0 ; i < observables.size() ; ++i ) { 
     // Add breakdown 
     for ( unsigned j = 0 ; j < process.size() ; ++j ) { 
-      histograms[observables[i]+process[j]] = new TH1D( (model_name+"_1Dxsec_"+observables[i]+"_"+process[j]).c_str(), process[j].c_str(),GetBinning(observables[i], Beam_E, topology).size()-1, &GetBinning(observables[i], Beam_E, topology)[0] );
+      histograms[observables[i]+process[j]] = new TH1D( (model_name+"_1Dxsec_"+observables[i]+"_"+process[j]).c_str(), process[j].c_str(),binning.size()-1, &binning[0] );
     }
   }
   
@@ -105,6 +106,8 @@ int main(int argc, char* argv[]) {
       if( rdr.failed() ) break;
 
       ++nprocessed;
+      
+      if( nprocessed > 100000 ) break;
 
       // Set units to GeV
       evt.set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
@@ -129,7 +132,7 @@ int main(int argc, char* argv[]) {
       auto Pyv = beampt->momentum().py();
       auto Pzv = beampt->momentum().pz();
       if( BeamPdg != 11 ) { std::cout << "ERROR: Beam is not e-"<<std::endl; break; }
-
+   
       // Read out-electron :
       auto primary_leptons = NuHepMC::Event::GetParticles_All(evt, NuHepMC::ParticleStatus::UndecayedPhysical, {beampt->pid()} );
       if( primary_leptons.size() == 0 ) continue ; // some NEUT events are pauli blocked but still stored. Skip them.
@@ -155,13 +158,9 @@ int main(int argc, char* argv[]) {
       if( Pl < GetMinMomentumCut( FSPrimLept, Ev ) ) continue ; 
 
       std::string process_name = "total" ;
-      
+     
       histograms["Efl"+process_name]->Fill(El,evw);
-      histograms["pfl"+process_name]->Fill(Pl,evw);
-      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
-      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
-      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
-      
+
       if ( process_id >= 200 && process_id < 300 ) process_name = "QEL";
       if ( process_id >= 300 && process_id < 400 ) process_name = "MEC";
       if ( process_id >= 400 && process_id < 500 ) process_name = "RES" ;
@@ -170,12 +169,8 @@ int main(int argc, char* argv[]) {
 	if( GetW(fslep_reco,beampt) < 1.7 ) process_name = "NonRES" ;
 	else process_name = "DIS";
       }
-
+      
       histograms["Efl"+process_name]->Fill(El,evw);
-      histograms["pfl"+process_name]->Fill(Pl,evw);
-      histograms["pfl_theta"+process_name]->Fill(fslep_reco->momentum().theta()*180/TMath::Pi(),evw);
-      histograms["RecoQ2"+process_name]->Fill(GetQ2(fslep_reco,beampt),evw);
-      histograms["RecoW"+process_name]->Fill(GetW(fslep_reco,beampt),evw);
 
     }
   }
