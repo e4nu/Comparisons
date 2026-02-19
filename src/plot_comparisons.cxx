@@ -233,6 +233,7 @@ int main( int argc, char* argv[] ) {
     double I_error = 0 ; 
     double I = hists[i]->IntegralAndError(1, hists[i]->GetNbinsX(), I_error, "width");
     std::cout << " MC " << names_list[i] +" Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
+    hists[i]->Sumw2();
     if( area_normalized ) hists[i]->Scale(1./I);
 
     if( i == 0 ) hists[i] -> Draw("hist err");
@@ -240,15 +241,20 @@ int main( int argc, char* argv[] ) {
 
     StandardFormat( hists_SPP[i], "", color_list[i+1], 2, observable, is_log, ymax );
     hists_SPP[i] -> SetMarkerStyle(0);
-    hists_SPP[i] -> Draw("hist err same");
-    legend->AddEntry(hists[i],(mc_label[i]).c_str());
-    legend->AddEntry(hists_SPP[i],(mc_label[i]+" SPP").c_str());
+    hists_SPP[i]->Sumw2();
+    if( area_normalized ) {
+      I = hists_SPP[i]->IntegralAndError(1, hists_SPP[i]->GetNbinsX(), I_error, "width");
+      hists_SPP[i]->Scale(1./I);
+    }
+    //    hists_SPP[i] -> Draw("hist err same");
+    //legend->AddEntry(hists[i],(mc_label[i]).c_str());
+    //legend->AddEntry(hists_SPP[i],(mc_label[i]+" SPP").c_str());
   }
 
   // Plot
   if( h_data != nullptr ) {
+    h_data ->Sumw2();
     h_data ->Scale(scale);
-
     double I_error = 0 ; 
     double I = h_data->IntegralAndError(1, h_data->GetNbinsX(), I_error, "width");
     std::cout << " Data Integral: " << I << "+-"<< I_error << "nb/Obs"<< std::endl;
