@@ -14,6 +14,7 @@ set(SOURCES
 # Add executable target
 add_executable(comparison_1pi src/comparison_1pi.cxx ${SOURCES})
 add_executable(comparison_1p1pi src/comparison_1p1pi.cxx ${SOURCES})
+add_executable(plot_comparisons src/comparison_Inclusive.cxx ${SOURCES})
 add_executable(plot_comparisons src/plot_comparisons.cxx ${SOURCES})
 
 find_package(ROOT REQUIRED)
@@ -27,6 +28,11 @@ target_link_libraries(comparison_1p1pi PUBLIC ROOT::Physics)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Tree)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Hist)
 target_link_libraries(comparison_1p1pi PUBLIC ROOT::Gpad)
+
+target_link_libraries(comparison_Inclusive PUBLIC ROOT::Physics)
+target_link_libraries(comparison_Inclusive PUBLIC ROOT::Tree)
+target_link_libraries(comparison_Inclusive PUBLIC ROOT::Hist)
+target_link_libraries(comparison_Inclusive PUBLIC ROOT::Gpad)
 
 target_link_libraries(plot_comparisons PUBLIC ROOT::Physics)
 target_link_libraries(plot_comparisons PUBLIC ROOT::Tree)
@@ -46,5 +52,6 @@ CPMAddPackage(
 )
 target_link_libraries(comparison_1pi PUBLIC NuHepMC::CPPUtils)
 target_link_libraries(comparison_1p1pi PUBLIC NuHepMC::CPPUtils)
+target_link_libraries(comparison_Inclusive PUBLIC NuHepMC::CPPUtils)
 target_link_libraries(plot_comparisons PUBLIC NuHepMC::CPPUtils)
 
