@@ -192,13 +192,6 @@ int main(int argc, char* argv[]) {
     // Save
     (it->second)->Write();
   }
-
-  for ( auto it = histograms2D.begin(); it != histograms2D.end(); it++) { 
-    // Normalize by total number of events 
-    NormalizeHist(it->second, fatx/sumw );
-    // Save
-    (it->second)->Write();
-  }
  
   // Close the file
   outfile->Close();
