@@ -11,7 +11,6 @@ The analysis is `CLAS_2026_I0000000`. The name is a placeholder until the paper 
 | `CLAS_2026_I0000000.cc` | the analysis |
 | `CLAS_2026_I0000000.info` | metadata |
 | `CLAS_2026_I0000000.plot` | titles, axis labels and ranges of the plots |
-| `hepdata2yoda.py` | makes the reference data file from the HEPData submission |
 
 The measured cross sections are not part of this repository. Without them the analysis runs and
 produces the model predictions; to overlay the data, see [Reference data](#reference-data).
@@ -96,15 +95,6 @@ Labels go through LaTeX: avoid `_` in titles, or write it as `\_`.
 ## Reference data
 
 The measured cross sections are not distributed with this repository. To compare with the data,
-put the reference file `CLAS_2026_I0000000.yoda.gz` in a directory of `RIVET_DATA_PATH` before
-running `rivet-mkhtml`; the plots then show the data, the models and their ratio.
-
-- Once the HEPData record is public, download its YODA file.
-- Until then, make it from the HEPData submission (needs the `yoda` Python module and PyYAML):
-
-  ```bash
-  python3 hepdata2yoda.py <HEPData submission folder> CLAS_2026_I0000000.yoda.gz
-  ```
-
-The statistical uncertainty and every systematic source are kept separately in the reference file;
-the plots show their sum in quadrature.
+download the YODA file of the HEPData record, save it as `CLAS_2026_I0000000.yoda.gz` in a directory
+of `RIVET_DATA_PATH` and run `rivet-mkhtml`: the plots then show the data, the models and their
+ratio.
