@@ -1,0 +1,35 @@
+Name: CLAS_2026_I0000000
+Year: 2026
+Summary: Single charged pion production C(e,e'p pi-) and C(e,e'p pi+) at 1.159, 2.257 and 4.453 GeV (e4nu)
+Experiment: CLAS
+Collider: CEBAF
+InspireID: 0000000
+Status: UNVALIDATED
+Reentrant: true
+Authors:
+ - Julia Tena-Vidal <jtenavidal@gmail.com>
+References:
+ - 'CLAS and e4nu Collaborations, to be published'
+RunInfo: Electron scattering on a $^{12}$C target at rest, at a beam energy of 1.159, 2.257 or 4.453 GeV.
+  One run per beam energy; the histograms of the other two energies stay empty.
+  The cross section of the run must be per carbon nucleus.
+# The target is not always flagged as a beam particle (NuHepMC: status 11), so any second beam is
+# accepted; the analysis checks the electron energy and the 12C target itself.
+Beams: [e-, '*']
+Description:
+  'Differential cross sections for electron scattering on carbon with exactly one proton and one
+  charged pion ($\pi^-$ or $\pi^+$) detected in the final state, as a function of the reconstructed
+  hadronic invariant mass $W$ and of the calorimetric energy $E_{cal}$, at beam energies of 1.159,
+  2.257 and 4.453 GeV, measured with the CLAS detector (e4nu). The data are corrected for detector
+  acceptance and radiative effects. To compare a model with the data, the momenta of the generated
+  final-state particles are smeared with the CLAS momentum resolutions, and the CLAS momentum and
+  polar-angle thresholds are applied to the electron and to the hadrons. Events must have
+  $Q^2$ above 0.1, 0.4 and 0.8 GeV$^2$ at 1.159, 2.257 and 4.453 GeV, exactly one detected proton,
+  exactly one detected charged pion and no detected photon.'
+ValidationInfo:
+  'Validated against the previous ROOT-based e4nu comparison code with GENIE and Achilles NuHepMC samples:
+  the integrated cross sections agree within statistics.'
+Keywords: [electron scattering, pion production, nuclear]
+ToDo:
+ - Set the Inspire ID and the name of the analysis once the paper has a record
+ - Replace the reference data with the YODA file of the HEPData record once it is public
